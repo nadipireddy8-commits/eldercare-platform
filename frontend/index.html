@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>ElderCare - Trusted Caregivers for Seniors</title>
+    <link rel="icon" type="image/png" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E❤️%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span class="heart">❤️</span> ElderCare
+        </div>
+        <nav>
+            <a href="index.html" class="active">Home</a>
+            <a href="caregivers.html">Caregivers</a>
+            <a href="login.html" id="loginLink">Login</a>
+            <a href="register.html" id="registerLink">Register</a>
+            <a href="dashboard.html" id="dashboardLink" style="display:none;">Dashboard</a>
+            <a href="bookings.html" id="bookingsLink" style="display:none;">My Bookings</a>
+            <button id="logoutBtn" style="display:none;" class="logout-btn">Logout</button>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Compassionate Care for Your Loved Ones</h1>
+            <p>Connect with verified, experienced caregivers who provide personalized elderly care services at home.</p>
+            <div class="hero-buttons">
+                <a href="caregivers.html" class="btn-primary">Find Caregivers</a>
+                <a href="register.html" class="btn-secondary">Become a Caregiver</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <h2>Why Choose ElderCare?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="icon">✓</div>
+                <h3>Verified Professionals</h3>
+                <p>All caregivers undergo background checks and verification.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">💬</div>
+                <h3>24/7 Support</h3>
+                <p>Round-the-clock assistance for families and seniors.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">📱</div>
+                <h3>Easy Booking</h3>
+                <p>Simple mobile-friendly interface to book care services.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">⭐</div>
+                <h3>Ratings & Reviews</h3>
+                <p>Transparent feedback system from real families.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works">
+        <h2>How It Works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Create Account</h3>
+                <p>Sign up as a family member seeking care</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Find Caregivers</h3>
+                <p>Browse profiles of verified caregivers</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Book Service</h3>
+                <p>Schedule care sessions that fit your needs</p>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <h3>Receive Care</h3>
+                <p>Get professional care at your home</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>ElderCare</h4>
+                <p>Making elderly care accessible and trustworthy.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <a href="caregivers.html">Find Caregivers</a>
+                <a href="#" onclick="showToast('About page coming soon!'); return false;">About Us</a>
+                <a href="#" onclick="showToast('Contact: support@eldercare.com'); return false;">Contact</a>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <p>📞 1-800-ELDERCARE</p>
+                <p>✉️ support@eldercare.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 ElderCare. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+    <script>
+        // Check authentication status on page load
+        checkAuthStatus();
+    </script>
+</body>
+</html>

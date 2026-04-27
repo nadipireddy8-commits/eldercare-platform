@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Caregivers - ElderCare</title>
+    <link rel="icon" type="image/png" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E❤️%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">❤️ ElderCare</div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="caregivers.html" class="active">Caregivers</a>
+            <a href="dashboard.html" id="dashboardNav" style="display:none;">Dashboard</a>
+            <a href="bookings.html" id="bookingsNav" style="display:none;">My Bookings</a>
+            <a href="profile.html" id="profileNav" style="display:none;">Profile</a>
+            <a href="login.html" id="loginNav">Login</a>
+            <a href="register.html" id="registerNav">Register</a>
+            <button id="logoutNavBtn" style="display:none;" class="logout-btn">Logout</button>
+        </nav>
+    </header>
+
+    <div class="caregivers-page">
+        <div class="page-header">
+            <h1>Find Trusted Caregivers</h1>
+            <p>Browse verified professionals ready to provide compassionate care</p>
+        </div>
+
+        <div class="filters">
+            <input type="text" id="searchInput" placeholder="Search by name or service...">
+            <select id="serviceFilter">
+                <option value="">All Services</option>
+                <option value="Companionship">Companionship</option>
+                <option value="Medical Care">Medical Care</option>
+                <option value="Personal Care">Personal Care</option>
+                <option value="Dementia Care">Dementia Care</option>
+            </select>
+            <select id="experienceFilter">
+                <option value="">All Experience</option>
+                <option value="1">1+ years</option>
+                <option value="3">3+ years</option>
+                <option value="5">5+ years</option>
+                <option value="8">8+ years</option>
+                <option value="10">10+ years</option>
+            </select>
+        </div>
+
+        <div id="caregiversList" class="caregivers-grid"></div>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 ElderCare. All caregivers are verified and background-checked.</p>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
