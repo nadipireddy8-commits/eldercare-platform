@@ -2,7 +2,9 @@
 // Save this file as: frontend/admin/admin-dashboard.js
 
 // API Configuration
-const API_URL = 'http://localhost:5001/api';
+// frontend/admin/admin-dashboard.js
+// Get API URL from config
+const API_URL = window.API_CONFIG?.BASE_URL || 'https://eldercare-api-4ovh.onrender.com/api';
 let bookingsChart = null;
 let allCaregivers = [];
 let allBookings = [];

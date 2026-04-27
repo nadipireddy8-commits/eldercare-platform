@@ -1,7 +1,8 @@
-// frontend/js/api.js - Complete Fixed Version
+// frontend/js/api.js
+// Get API URL from config
+const API_BASE_URL = window.API_CONFIG?.BASE_URL || 'https://eldercare-api-4ovh.onrender.com/api';
 
-// API Configuration
-const API_BASE_URL = 'http://localhost:5001/api';
+console.log('API Base URL:', API_BASE_URL);
 
 // Global state
 let currentUser = null;
@@ -12,10 +13,10 @@ try {
     const savedUser = localStorage.getItem('user');
     if (savedUser && authToken) {
         currentUser = JSON.parse(savedUser);
-        console.log('Loaded user from localStorage:', currentUser);
+        console.log('Loaded user:', currentUser.name);
     }
 } catch (e) {
-    console.error('Error loading user from localStorage:', e);
+    console.error('Error loading user:', e);
 }
 
 // API Helper Function
@@ -35,12 +36,12 @@ async function apiCall(endpoint, options = {}) {
     try {
         const response = await fetch(url, {
             ...options,
-            headers
+            headers,
+            mode: 'cors'
         });
         
         if (response.status === 401) {
-            // Token expired or invalid
-            console.log('Token expired or invalid');
+            console.log('Token expired');
             logout();
             throw new Error('Session expired. Please login again.');
         }
@@ -55,19 +56,20 @@ async function apiCall(endpoint, options = {}) {
         return data;
     } catch (error) {
         console.error('API Error:', error);
+        showToast(error.message || 'Connection failed. Please try again.', 'error');
         throw error;
     }
 }
 
 // Show toast notification
 function showToast(message, type = 'info') {
-    // Remove existing toast
     const existingToast = document.querySelector('.toast');
     if (existingToast) existingToast.remove();
     
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.textContent = message;
+    toast.style.cssText = `position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:${type === 'error' ? '#ef4444' : '#1e293b'};color:white;padding:0.75rem 1.5rem;border-radius:8px;z-index:9999;`;
     document.body.appendChild(toast);
     
     setTimeout(() => {
@@ -91,13 +93,18 @@ async function login(email, password) {
             localStorage.setItem('user', JSON.stringify(currentUser));
             console.log('Login successful:', currentUser);
             showToast('Login successful! Welcome back!');
-            window.location.href = 'dashboard.html';
+            
+            if (currentUser.role === 'admin') {
+                window.location.href = '/admin/admin-dashboard.html';
+            } else {
+                window.location.href = '/dashboard.html';
+            }
             return true;
         }
         return false;
     } catch (error) {
         console.error('Login error:', error);
-        showToast(error.message || 'Login failed. Please check your credentials.');
+        showToast(error.message || 'Login failed. Please check your credentials.', 'error');
         return false;
     }
 }
@@ -105,17 +112,19 @@ async function login(email, password) {
 async function register(name, email, password, role = 'family') {
     try {
         console.log('Attempting registration for:', email);
-        await apiCall('/auth/register', {
+        const data = await apiCall('/auth/register', {
             method: 'POST',
             body: JSON.stringify({ name, email, password, role })
         });
         
         showToast('Registration successful! Please login.');
-        window.location.href = 'login.html';
+        setTimeout(() => {
+            window.location.href = '/login.html';
+        }, 1500);
         return true;
     } catch (error) {
         console.error('Registration error:', error);
-        showToast(error.message || 'Registration failed. Please try again.');
+        showToast(error.message || 'Registration failed. Please try again.', 'error');
         return false;
     }
 }
@@ -127,14 +136,12 @@ function logout() {
     authToken = null;
     currentUser = null;
     showToast('Logged out successfully');
-    window.location.href = 'index.html';
+    window.location.href = '/index.html';
 }
 
 function checkAuthStatus() {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
-    
-    console.log('Checking auth status - Token exists:', !!token);
     
     if (token && user) {
         authToken = token;
@@ -177,7 +184,7 @@ function checkAuthStatus() {
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, setting up event listeners');
+    console.log('DOM loaded');
     
     // Login form handler
     const loginForm = document.getElementById('loginForm');
@@ -202,12 +209,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const role = document.getElementById('role')?.value || 'family';
             
             if (password !== confirmPassword) {
-                showToast('Passwords do not match!');
+                showToast('Passwords do not match!', 'error');
                 return;
             }
             
             if (password.length < 6) {
-                showToast('Password must be at least 6 characters!');
+                showToast('Password must be at least 6 characters!', 'error');
                 return;
             }
             
@@ -223,6 +230,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-    // Check auth status on page load
+    // Check auth status
     checkAuthStatus();
 });
