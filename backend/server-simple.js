@@ -2,16 +2,45 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
-app.use(cors());
+
+// CORS configuration - Allow frontend to connect
+const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+    'https://eldercare-frontend.onrender.com',
+    process.env.CORS_ORIGIN
+].filter(Boolean);
+
+app.use(cors({
+    origin: function(origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            console.log('Blocked origin:', origin);
+            callback(null, true); // Allow all for now
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 
 // ============ IN-MEMORY DATABASE ============
 let users = [];
 let caregivers = [];
 let bookings = [];
-let nextId = 3; // Start after initial IDs
+let nextId = 10;
 
 const salt = bcrypt.genSaltSync(10);
 
@@ -57,12 +86,11 @@ caregivers.push({
     service: 'Companionship',
     experience: 5,
     verified: true,
-    description: 'Experienced caregiver specializing in elderly companionship, conversation, and daily living assistance. Certified in first aid and CPR.',
+    description: 'Experienced caregiver specializing in elderly companionship.',
     phone: '+1 555-0201',
     email: 'emily@caregiver.com',
     hourlyRate: 25,
     rating: 4.8,
-    totalReviews: 12,
     available: true,
     createdAt: new Date()
 });
@@ -73,12 +101,11 @@ caregivers.push({
     service: 'Medical Care',
     experience: 8,
     verified: true,
-    description: 'Registered nurse with 8 years of experience in geriatric care, medication management, and post-operative care.',
+    description: 'Registered nurse with 8 years of experience.',
     phone: '+1 555-0202',
     email: 'david@caregiver.com',
     hourlyRate: 35,
     rating: 4.9,
-    totalReviews: 24,
     available: true,
     createdAt: new Date()
 });
@@ -89,12 +116,11 @@ caregivers.push({
     service: 'Dementia Care',
     experience: 10,
     verified: true,
-    description: 'Specialist in dementia and Alzheimer\'s care with 10+ years experience. Certified dementia practitioner.',
+    description: 'Specialist in dementia and Alzheimer\'s care.',
     phone: '+1 555-0203',
     email: 'robert@caregiver.com',
     hourlyRate: 40,
     rating: 5.0,
-    totalReviews: 32,
     available: true,
     createdAt: new Date()
 });
@@ -105,30 +131,44 @@ caregivers.push({
     service: 'Personal Care',
     experience: 4,
     verified: false,
-    description: 'Compassionate caregiver trained in personal care, bathing assistance, and mobility support.',
+    description: 'Compassionate caregiver for personal care.',
     phone: '+1 555-0204',
     email: 'maria@caregiver.com',
     hourlyRate: 22,
     rating: 4.5,
-    totalReviews: 8,
     available: true,
     createdAt: new Date()
 });
 
-// Sample booking
+// Sample bookings
 bookings.push({
-    _id: '100',
+    _id: '101',
     bookingId: 'BK000001',
     userId: '2',
-    caregiverId: '4',
-    caregiverName: 'Maria Garcia',
-    date: new Date('2026-04-03'),
+    caregiverId: '1',
+    caregiverName: 'Emily Wilson',
+    date: new Date('2026-04-05'),
+    timeSlot: 'Morning',
+    duration: 3,
+    totalAmount: 75,
+    status: 'Accepted',
+    notes: 'First time booking',
+    createdAt: new Date('2026-04-01')
+});
+
+bookings.push({
+    _id: '102',
+    bookingId: 'BK000002',
+    userId: '2',
+    caregiverId: '3',
+    caregiverName: 'Robert Taylor',
+    date: new Date('2026-04-22'),
     timeSlot: 'Morning',
     duration: 2,
-    totalAmount: 44,
-    status: 'Pending',
-    notes: 'Booking request for Maria Garcia',
-    createdAt: new Date('2026-04-03')
+    totalAmount: 80,
+    status: 'Cancelled',
+    notes: 'Booking request for Robert Taylor',
+    createdAt: new Date('2026-04-20')
 });
 
 // ============ AUTH MIDDLEWARE ============
@@ -138,7 +178,7 @@ const auth = (req, res, next) => {
         return res.status(401).json({ message: 'No token provided' });
     }
     try {
-        const decoded = jwt.verify(token, 'secret');
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
         req.user = decoded;
         next();
     } catch(error) {
@@ -177,7 +217,7 @@ app.post('/api/auth/register', (req, res) => {
         
         const token = jwt.sign(
             { id: newUser._id, email: newUser.email, role: newUser.role },
-            'secret',
+            process.env.JWT_SECRET || 'secret',
             { expiresIn: '7d' }
         );
         
@@ -206,7 +246,7 @@ app.post('/api/auth/login', (req, res) => {
         
         const token = jwt.sign(
             { id: user._id, email: user.email, role: user.role },
-            'secret',
+            process.env.JWT_SECRET || 'secret',
             { expiresIn: '7d' }
         );
         
@@ -270,7 +310,6 @@ app.post('/api/bookings', auth, (req, res) => {
         };
         
         bookings.push(newBooking);
-        console.log(`✅ New booking created: ${newBooking._id} for ${caregiver.name}`);
         res.status(201).json(newBooking);
         
     } catch (error) {
@@ -284,34 +323,13 @@ app.get('/api/bookings', auth, (req, res) => {
     res.json(userBookings);
 });
 
-// CANCEL BOOKING ENDPOINT - FIXED
 app.put('/api/bookings/:id/cancel', auth, (req, res) => {
-    const bookingIndex = bookings.findIndex(b => b._id === req.params.id && b.userId === req.user.id);
-    
-    if (bookingIndex === -1) {
+    const booking = bookings.find(b => b._id === req.params.id && b.userId === req.user.id);
+    if (!booking) {
         return res.status(404).json({ message: 'Booking not found' });
     }
-    
-    if (bookings[bookingIndex].status === 'Cancelled') {
-        return res.status(400).json({ message: 'Booking already cancelled' });
-    }
-    
-    bookings[bookingIndex].status = 'Cancelled';
-    console.log(`✅ Booking ${req.params.id} cancelled by user ${req.user.id}`);
-    res.json({ message: 'Booking cancelled successfully', booking: bookings[bookingIndex] });
-});
-
-// Alternative cancel endpoint (DELETE method)
-app.delete('/api/bookings/:id', auth, (req, res) => {
-    const bookingIndex = bookings.findIndex(b => b._id === req.params.id && b.userId === req.user.id);
-    
-    if (bookingIndex === -1) {
-        return res.status(404).json({ message: 'Booking not found' });
-    }
-    
-    bookings[bookingIndex].status = 'Cancelled';
-    console.log(`✅ Booking ${req.params.id} cancelled via DELETE`);
-    res.json({ message: 'Booking cancelled successfully' });
+    booking.status = 'Cancelled';
+    res.json({ message: 'Booking cancelled successfully', booking });
 });
 
 // ============ PATIENT PROFILE ROUTES ============
@@ -472,19 +490,17 @@ app.get('/api/health', (req, res) => {
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
     console.log('\n' + '='.repeat(55));
-    console.log('🚀 ELDERCARE SERVER STARTED SUCCESSFULLY!');
+    console.log('🚀 ELDERCARE BACKEND RUNNING');
     console.log('='.repeat(55));
-    console.log(`📡 Server running on: http://localhost:${PORT}`);
-    console.log(`🔗 API URL: http://localhost:${PORT}/api`);
-    console.log(`💚 Health check: http://localhost:${PORT}/api/health`);
+    console.log(`📡 Server: http://localhost:${PORT}`);
+    console.log(`🔗 API: http://localhost:${PORT}/api`);
+    console.log(`💚 Health: http://localhost:${PORT}/api/health`);
     console.log('\n📋 LOGIN CREDENTIALS:');
     console.log('   👑 Admin: admin@eldercare.com / Admin@123');
     console.log('   👤 User: john@example.com / password123');
-    console.log('   👤 User: sarah@example.com / password123');
-    console.log('\n📊 CURRENT DATA STATUS:');
-    console.log(`   👥 Users: ${users.length}`);
-    console.log(`   👩‍⚕️ Caregivers: ${caregivers.length}`);
-    console.log(`   📅 Bookings: ${bookings.length}`);
-    console.log('\n💡 TIP: This is an in-memory server (no MongoDB needed)');
+    console.log('\n📊 DATA STATUS:');
+    console.log(`   Users: ${users.length}`);
+    console.log(`   Caregivers: ${caregivers.length}`);
+    console.log(`   Bookings: ${bookings.length}`);
     console.log('='.repeat(55) + '\n');
 });
