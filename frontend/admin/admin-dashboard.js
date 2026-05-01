@@ -49,6 +49,22 @@ async function apiCall(endpoint, options = {}) {
         throw error;
     }
 }
+// In the caregiver form submit handler, add rating fields:
+const data = {
+    name: document.getElementById('caregiverName').value,
+    service: document.getElementById('caregiverService').value,
+    experience: parseInt(document.getElementById('caregiverExperience').value),
+    hourlyRate: parseInt(document.getElementById('caregiverRate').value),
+    phone: document.getElementById('caregiverPhone').value,
+    email: document.getElementById('caregiverEmail').value,
+    description: document.getElementById('caregiverDesc').value,
+    rating: parseFloat(document.getElementById('caregiverRating')?.value || 4.5),
+    totalReviews: parseInt(document.getElementById('caregiverTotalReviews')?.value || 0)
+};
+
+// In editCaregiver function, load rating values:
+document.getElementById('caregiverRating').value = caregiver.rating || 4.5;
+document.getElementById('caregiverTotalReviews').value = caregiver.totalReviews || 0;
 
 function showToast(message, type = 'success') {
     // Remove existing toast
