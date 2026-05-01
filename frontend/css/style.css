@@ -1,6 +1,6 @@
 /* ========================================
-   ELDERCARE APP - COMPLETE CSS (PART 1/2)
-   Matches your existing HTML classes
+   ELDERCARE APP - PROFESSIONAL COMPLETE CSS
+   Modern Design with Professional Buttons
    ======================================== */
 
 /* Import Google Font */
@@ -14,6 +14,7 @@
     --secondary: #f59e0b;
     --success: #10b981;
     --danger: #ef4444;
+    --danger-dark: #dc2626;
     --warning: #f59e0b;
     --info: #3b82f6;
     --text-dark: #1f2937;
@@ -74,17 +75,10 @@ header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background: linear-gradient(135deg, #fff, #e0e7ff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
 }
 
 .heart {
     color: #ff6b6b;
-    background: none;
-    -webkit-background-clip: unset;
-    background-clip: unset;
 }
 
 nav {
@@ -109,64 +103,105 @@ nav a:hover, nav a.active {
     transform: translateY(-2px);
 }
 
-.logout-btn {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 50px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: var(--transition);
-}
-
-.logout-btn:hover {
-    background: var(--danger);
-    transform: translateY(-2px);
-}
-
 /* ========================================
-   BUTTONS
+   PROFESSIONAL BUTTON STYLES
    ======================================== */
 
-.btn-primary {
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+/* Primary Button */
+.btn-primary, .btn-book, .book-btn {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
     color: white;
-    padding: 0.75rem 1.5rem;
     border: none;
-    border-radius: 50px;
+    padding: 12px 28px;
+    border-radius: 12px;
     font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    text-decoration: none;
-    display: inline-block;
     font-size: 0.9rem;
-    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
 }
 
-.btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-lg);
+.btn-primary:hover, .btn-book:hover, .book-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(44, 110, 158, 0.3);
+    background: linear-gradient(135deg, var(--primary-dark) 0%, #143b5c 100%);
 }
 
+.btn-primary:active, .btn-book:active, .book-btn:active {
+    transform: translateY(0px);
+}
+
+/* Secondary Button */
 .btn-secondary {
-    background: white;
+    background: transparent;
     color: var(--primary);
-    padding: 0.75rem 1.5rem;
     border: 2px solid var(--primary);
-    border-radius: 50px;
+    padding: 12px 28px;
+    border-radius: 12px;
     font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    text-decoration: none;
-    display: inline-block;
     font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .btn-secondary:hover {
     background: var(--primary);
     color: white;
-    transform: translateY(-3px);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(44, 110, 158, 0.2);
+}
+
+/* Cancel Button */
+.btn-cancel {
+    background: linear-gradient(135deg, var(--danger) 0%, var(--danger-dark) 100%);
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
+.btn-cancel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.3);
+    background: linear-gradient(135deg, var(--danger-dark) 0%, #b91c1c 100%);
+}
+
+/* Logout Button */
+.logout-btn {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 8px 20px;
+    border-radius: 40px;
+    font-weight: 500;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background: rgba(239, 68, 68, 0.8);
+    border-color: transparent;
+    transform: translateY(-2px);
 }
 
 .btn-full {
@@ -222,6 +257,116 @@ nav a:hover, nav a.active {
     gap: 1rem;
     justify-content: center;
     flex-wrap: wrap;
+}
+
+/* ========================================
+   PROFESSIONAL CARD STYLES
+   ======================================== */
+
+/* Caregiver Card */
+.caregivers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.caregiver-card {
+    background: white;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.caregiver-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), #60a5fa, var(--primary));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.caregiver-card:hover::before {
+    transform: scaleX(1);
+}
+
+.caregiver-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.caregiver-card h3 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Verified Badge */
+.verified-badge {
+    background: linear-gradient(135deg, var(--success), #059669);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 40px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.verified-badge::before {
+    content: '✓';
+    font-size: 0.85rem;
+}
+
+/* Service Badge */
+.service {
+    display: inline-block;
+    background: #e0f2fe;
+    color: #0369a1;
+    padding: 5px 14px;
+    border-radius: 40px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin: 0.75rem 0;
+    letter-spacing: 0.3px;
+}
+
+/* Experience & Rating */
+.experience {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    margin: 0.5rem 0;
+}
+
+.experience::before {
+    content: '⭐';
+    font-size: 0.9rem;
+}
+
+/* Description */
+.caregiver-card p {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin: 0.75rem 0;
 }
 
 /* ========================================
@@ -361,29 +506,6 @@ nav a:hover, nav a.active {
 }
 
 /* ========================================
-   CARDS & CONTAINERS
-   ======================================== */
-
-.container {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-}
-
-.card {
-    background: white;
-    border-radius: var(--radius-xl);
-    padding: 2rem;
-    box-shadow: var(--shadow-md);
-    border: 1px solid var(--border);
-    transition: var(--transition);
-}
-
-.card:hover {
-    box-shadow: var(--shadow-xl);
-}
-
-/* ========================================
    DASHBOARD
    ======================================== */
 
@@ -397,7 +519,7 @@ nav a:hover, nav a.active {
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     color: white;
     padding: 2rem;
-    border-radius: var(--radius-xl);
+    border-radius: 24px;
     margin-bottom: 2rem;
     position: relative;
     overflow: hidden;
@@ -409,7 +531,7 @@ nav a:hover, nav a.active {
     bottom: -20px;
     right: 20px;
     font-size: 100px;
-    opacity: 0.1;
+    opacity: 0.08;
 }
 
 .welcome-banner h1 {
@@ -417,6 +539,7 @@ nav a:hover, nav a.active {
     margin-bottom: 0.5rem;
 }
 
+/* Stats Cards */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -426,8 +549,8 @@ nav a:hover, nav a.active {
 
 .stat-card {
     background: white;
+    border-radius: 20px;
     padding: 1.5rem;
-    border-radius: var(--radius-xl);
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -437,23 +560,35 @@ nav a:hover, nav a.active {
 }
 
 .stat-card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-4px);
     box-shadow: var(--shadow-lg);
+    border-color: var(--primary-light);
 }
 
 .stat-icon {
-    font-size: 2.5rem;
+    width: 55px;
+    height: 55px;
+    background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
 }
 
 .stat-info h3 {
-    font-size: 2rem;
-    color: var(--primary);
+    font-size: 1.8rem;
     font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 0.25rem;
 }
 
 .stat-info p {
     color: var(--text-light);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .recent-bookings, .recommended-caregivers {
@@ -467,87 +602,6 @@ nav a:hover, nav a.active {
 }
 
 /* ========================================
-   CAREGIVERS GRID & CARDS
-   ======================================== */
-
-.caregivers-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1rem;
-}
-
-.caregiver-card {
-    background: white;
-    border-radius: var(--radius-xl);
-    padding: 1.5rem;
-    box-shadow: var(--shadow-sm);
-    transition: var(--transition);
-    border: 1px solid var(--border);
-}
-
-.caregiver-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-xl);
-}
-
-.caregiver-card h3 {
-    font-size: 1.3rem;
-    margin-bottom: 0.5rem;
-    color: var(--primary);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.verified-badge {
-    color: var(--success);
-    font-size: 0.8rem;
-    background: #d1fae5;
-    padding: 0.2rem 0.6rem;
-    border-radius: 50px;
-}
-
-.experience {
-    color: var(--text-light);
-    font-size: 0.85rem;
-    margin: 0.5rem 0;
-}
-
-.service {
-    background: linear-gradient(135deg, #e0e7ff, #f0f9ff);
-    padding: 0.3rem 0.8rem;
-    border-radius: 50px;
-    display: inline-block;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--primary);
-    margin: 0.5rem 0;
-}
-
-.book-btn {
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    color: white;
-    border: none;
-    padding: 0.6rem 1rem;
-    border-radius: 50px;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 1rem;
-    font-weight: 600;
-    transition: var(--transition);
-}
-
-.book-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
-/* ========================================
-   ELDERCARE APP - COMPLETE CSS (PART 2/2)
-   Bookings, Forms, Filters, Footer, Responsive
-   ======================================== */
-
-/* ========================================
    BOOKINGS LIST & CARDS
    ======================================== */
 
@@ -559,85 +613,84 @@ nav a:hover, nav a.active {
 
 .booking-card {
     background: white;
-    border-radius: var(--radius-lg);
+    border-radius: 16px;
     padding: 1.25rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
     gap: 1rem;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     border: 1px solid var(--border);
     transition: var(--transition);
 }
 
 .booking-card:hover {
     box-shadow: var(--shadow-md);
+    border-color: var(--primary-light);
+}
+
+.booking-info {
+    flex: 1;
 }
 
 .booking-info h4 {
+    font-size: 0.9rem;
+    color: var(--text-light);
     margin-bottom: 0.5rem;
-    color: var(--primary);
-    font-size: 1rem;
+    font-weight: 500;
 }
 
 .booking-info p {
-    margin: 0.25rem 0;
-    font-size: 0.85rem;
-    color: var(--text-light);
+    margin: 0.4rem 0;
+    font-size: 0.9rem;
+    color: var(--text-dark);
 }
 
-.booking-status {
-    padding: 0.3rem 0.8rem;
-    border-radius: 50px;
-    font-size: 0.75rem;
+.booking-info strong {
+    color: var(--primary);
     font-weight: 600;
+}
+
+/* Status Badges */
+.booking-status {
+    padding: 6px 16px;
+    border-radius: 40px;
+    font-size: 0.7rem;
+    font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .status-pending {
     background: #fef3c7;
     color: #92400e;
+    border: 1px solid #fde68a;
 }
 
 .status-accepted {
     background: #d1fae5;
     color: #065f46;
+    border: 1px solid #a7f3d0;
 }
 
 .status-completed {
     background: #e0e7ff;
     color: #3730a3;
+    border: 1px solid #c7d2fe;
 }
 
 .status-cancelled {
     background: #fee2e2;
     color: #991b1b;
+    border: 1px solid #fecaca;
 }
 
-/* Booking Actions */
 .booking-actions {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     gap: 0.5rem;
-}
-
-.btn-cancel {
-    background: var(--danger);
-    color: white;
-    border: none;
-    padding: 0.4rem 0.8rem;
-    border-radius: 50px;
-    cursor: pointer;
-    font-size: 0.75rem;
-    font-weight: 500;
-    transition: var(--transition);
-}
-
-.btn-cancel:hover {
-    background: #dc2626;
-    transform: scale(0.95);
 }
 
 .booking-status-container {
@@ -654,31 +707,32 @@ nav a:hover, nav a.active {
     gap: 0.5rem;
     flex-wrap: wrap;
     margin-bottom: 2rem;
-    border-bottom: 2px solid var(--border);
-    padding-bottom: 0.5rem;
+    background: #f1f5f9;
+    padding: 0.5rem;
+    border-radius: 60px;
 }
 
 .tab-btn {
-    background: none;
+    background: transparent;
     border: none;
-    padding: 0.5rem 1rem;
+    padding: 10px 24px;
     cursor: pointer;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 0.85rem;
     color: var(--text-light);
     transition: var(--transition);
-    border-radius: 50px;
+    border-radius: 40px;
 }
 
 .tab-btn:hover {
     color: var(--primary);
-    background: #eff6ff;
+    background: rgba(44, 110, 158, 0.1);
 }
 
 .tab-btn.active {
-    color: var(--primary);
-    background: #eff6ff;
-    border-bottom: 2px solid var(--primary);
-    margin-bottom: -0.5rem;
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 4px 10px rgba(44, 110, 158, 0.3);
 }
 
 /* ========================================
@@ -686,21 +740,24 @@ nav a:hover, nav a.active {
    ======================================== */
 
 .filters {
-    max-width: 1280px;
-    margin: 2rem auto;
-    padding: 0 1.5rem;
+    background: white;
+    border-radius: 20px;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
 }
 
 .filters input, .filters select {
     flex: 1;
-    min-width: 200px;
-    padding: 0.75rem 1rem;
+    min-width: 180px;
+    padding: 12px 16px;
     border: 2px solid var(--border);
-    border-radius: var(--radius-lg);
-    font-size: 0.9rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
     transition: var(--transition);
     background: white;
 }
@@ -723,8 +780,8 @@ nav a:hover, nav a.active {
 
 .auth-card {
     background: white;
-    border-radius: var(--radius-2xl);
-    padding: 2rem;
+    border-radius: 28px;
+    padding: 2.5rem;
     box-shadow: var(--shadow-xl);
     border: 1px solid var(--border);
 }
@@ -733,7 +790,10 @@ nav a:hover, nav a.active {
     text-align: center;
     margin-bottom: 0.5rem;
     font-size: 1.8rem;
-    color: var(--primary);
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
 
 .auth-subtitle {
@@ -765,7 +825,7 @@ nav a:hover, nav a.active {
     width: 100%;
     padding: 0.75rem 1rem;
     border: 2px solid var(--border);
-    border-radius: var(--radius-lg);
+    border-radius: 12px;
     font-size: 0.9rem;
     font-family: inherit;
     transition: var(--transition);
@@ -874,7 +934,7 @@ nav a:hover, nav a.active {
 }
 
 /* ========================================
-   ERROR MESSAGE
+   ERROR & LOADING
    ======================================== */
 
 .error {
@@ -1033,6 +1093,31 @@ footer {
     }
     
     .welcome-banner h1 {
+        font-size: 1.4rem;
+    }
+    
+    .btn-primary, .btn-book, .book-btn {
+        padding: 10px 20px;
+        font-size: 0.8rem;
+    }
+    
+    .booking-tabs {
+        border-radius: 20px;
+        padding: 0.5rem;
+    }
+    
+    .tab-btn {
+        padding: 8px 16px;
+        font-size: 0.75rem;
+    }
+    
+    .stat-icon {
+        width: 45px;
+        height: 45px;
+        font-size: 1.4rem;
+    }
+    
+    .stat-info h3 {
         font-size: 1.4rem;
     }
 }
