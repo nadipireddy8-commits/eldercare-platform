@@ -2,16 +2,13 @@
 // Save this file as: frontend/admin/admin-dashboard.js
 
 // API Configuration
-// frontend/admin/admin-dashboard.js
-// Get API URL from config
-const API_URL = window.API_CONFIG?.BASE_URL || 'https://eldercare-api-4ovh.onrender.com/api';
+const API_URL = 'https://eldercare-api-4ovh.onrender.com/api';
 let bookingsChart = null;
 let allCaregivers = [];
 let allBookings = [];
 let allUsers = [];
 
-// ============ HELPER FUNCTIONS ============
-
+// Helper Functions
 function getToken() {
     return localStorage.getItem('token');
 }
@@ -49,25 +46,8 @@ async function apiCall(endpoint, options = {}) {
         throw error;
     }
 }
-// In the caregiver form submit handler, add rating fields:
-const data = {
-    name: document.getElementById('caregiverName').value,
-    service: document.getElementById('caregiverService').value,
-    experience: parseInt(document.getElementById('caregiverExperience').value),
-    hourlyRate: parseInt(document.getElementById('caregiverRate').value),
-    phone: document.getElementById('caregiverPhone').value,
-    email: document.getElementById('caregiverEmail').value,
-    description: document.getElementById('caregiverDesc').value,
-    rating: parseFloat(document.getElementById('caregiverRating')?.value || 4.5),
-    totalReviews: parseInt(document.getElementById('caregiverTotalReviews')?.value || 0)
-};
-
-// In editCaregiver function, load rating values:
-document.getElementById('caregiverRating').value = caregiver.rating || 4.5;
-document.getElementById('caregiverTotalReviews').value = caregiver.totalReviews || 0;
 
 function showToast(message, type = 'success') {
-    // Remove existing toast
     const existingToast = document.querySelector('.custom-toast');
     if (existingToast) existingToast.remove();
     
@@ -85,74 +65,41 @@ function logout() {
     window.location.href = '/login.html';
 }
 
-// ============ NAVIGATION ============
-
+// Navigation
 function showSection(section) {
-    // Hide all sections
-    document.getElementById('dashboardSection').style.display = 'none';
-    document.getElementById('caregiversSection').style.display = 'none';
-    document.getElementById('bookingsSection').style.display = 'none';
-    document.getElementById('usersSection').style.display = 'none';
+    document.getElementById('dashboardSection').style.display = section === 'dashboard' ? 'block' : 'none';
+    document.getElementById('caregiversSection').style.display = section === 'caregivers' ? 'block' : 'none';
+    document.getElementById('bookingsSection').style.display = section === 'bookings' ? 'block' : 'none';
+    document.getElementById('usersSection').style.display = section === 'users' ? 'block' : 'none';
     
-    // Show selected section
-    document.getElementById(`${section}Section`).style.display = 'block';
-    
-    // Update active nav item
     document.querySelectorAll('.admin-nav-item').forEach(el => el.classList.remove('active'));
     if (event && event.target) {
         event.target.classList.add('active');
     }
     
-    // Load section data
     if (section === 'dashboard') loadDashboard();
     if (section === 'caregivers') loadCaregivers();
     if (section === 'bookings') loadBookings();
     if (section === 'users') loadUsers();
 }
 
-// ============ DASHBOARD FUNCTIONS ============
-
+// ============ DASHBOARD ============
 async function loadDashboard() {
     try {
         const stats = await apiCall('/admin/stats');
-        
         const statsGrid = document.getElementById('statsGrid');
+        
         if (statsGrid) {
             statsGrid.innerHTML = `
-                <div class="stat-card">
-                    <div class="stat-icon">👥</div>
-                    <h3>${stats.totalUsers || 0}</h3>
-                    <p>Total Users</p>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">👩‍⚕️</div>
-                    <h3>${stats.totalCaregivers || 0}</h3>
-                    <p>Total Caregivers</p>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">📅</div>
-                    <h3>${stats.totalBookings || 0}</h3>
-                    <p>Total Bookings</p>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">💰</div>
-                    <h3>$${stats.totalRevenue || 0}</h3>
-                    <p>Total Revenue</p>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">⏳</div>
-                    <h3>${stats.pendingBookings || 0}</h3>
-                    <p>Pending Bookings</p>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">✅</div>
-                    <h3>${stats.verifiedCaregivers || 0}</h3>
-                    <p>Verified Caregivers</p>
-                </div>
+                <div class="stat-card"><div class="stat-icon">👥</div><h3>${stats.totalUsers || 0}</h3><p>Total Users</p></div>
+                <div class="stat-card"><div class="stat-icon">👩‍⚕️</div><h3>${stats.totalCaregivers || 0}</h3><p>Total Caregivers</p></div>
+                <div class="stat-card"><div class="stat-icon">📅</div><h3>${stats.totalBookings || 0}</h3><p>Total Bookings</p></div>
+                <div class="stat-card"><div class="stat-icon">💰</div><h3>$${stats.totalRevenue || 0}</h3><p>Total Revenue</p></div>
+                <div class="stat-card"><div class="stat-icon">⏳</div><h3>${stats.pendingBookings || 0}</h3><p>Pending Bookings</p></div>
+                <div class="stat-card"><div class="stat-icon">✅</div><h3>${stats.verifiedCaregivers || 0}</h3><p>Verified Caregivers</p></div>
             `;
         }
         
-        // Load recent bookings
         const bookings = await apiCall('/admin/bookings');
         const recentDiv = document.getElementById('recentBookingsList');
         
@@ -160,20 +107,15 @@ async function loadDashboard() {
             if (bookings && bookings.length > 0) {
                 recentDiv.innerHTML = bookings.slice(0, 10).map(b => `
                     <div style="padding: 1rem; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <strong>${b.caregiverName || 'Unknown'}</strong>
-                            <br>
-                            <small style="color: #64748b;">${new Date(b.date).toLocaleDateString()} - ${b.timeSlot || 'Flexible'}</small>
-                        </div>
+                        <div><strong>${b.caregiverName || 'Unknown'}</strong><br><small>${new Date(b.date).toLocaleDateString()}</small></div>
                         <span class="status-badge status-${(b.status || 'Pending').toLowerCase()}">${b.status || 'Pending'}</span>
                     </div>
                 `).join('');
             } else {
-                recentDiv.innerHTML = '<p style="text-align: center; padding: 2rem; color: #64748b;">No bookings yet</p>';
+                recentDiv.innerHTML = '<p style="text-align: center; padding: 2rem;">No bookings yet</p>';
             }
         }
         
-        // Create chart
         if (bookingsChart) bookingsChart.destroy();
         const ctx = document.getElementById('bookingsChart');
         if (ctx) {
@@ -191,23 +133,7 @@ async function loadDashboard() {
                         tension: 0.4
                     }]
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: { position: 'top' },
-                        tooltip: { mode: 'index', intersect: false }
-                    },
-                    scales: {
-                        y: { 
-                            beginAtZero: true,
-                            title: { display: true, text: 'Number of Bookings' }
-                        },
-                        x: {
-                            title: { display: true, text: 'Month' }
-                        }
-                    }
-                }
+                options: { responsive: true, maintainAspectRatio: true }
             });
         }
     } catch (error) {
@@ -221,7 +147,6 @@ async function loadDashboard() {
 }
 
 // ============ CAREGIVER MANAGEMENT ============
-
 async function loadCaregivers() {
     try {
         allCaregivers = await apiCall('/admin/caregivers');
@@ -256,7 +181,7 @@ function displayCaregivers() {
             <td>${c.experience || 0} years</td>
             <td>$${c.hourlyRate || 25}/hr</td>
             <td>${c.verified ? '<span style="color:#10b981;">Verified</span>' : '<span style="color:#f59e0b;">Pending</span>'}</td>
-            <td>⭐ ${c.rating || 0}</td>
+            <td>⭐ ${c.rating || 0} (${c.totalReviews || 0} reviews)</td>
             <td>
                 ${!c.verified ? `<button class="btn-verify" onclick="verifyCaregiver('${c._id}')">Verify</button>` : ''}
                 <button class="btn-edit" onclick="editCaregiver('${c._id}')">Edit</button>
@@ -307,12 +232,16 @@ function openCaregiverModal() {
         title.innerText = 'Add New Caregiver';
         form.reset();
         document.getElementById('caregiverId').value = '';
+        document.getElementById('caregiverRating').value = '4.5';
+        document.getElementById('caregiverTotalReviews').value = '0';
         modal.style.display = 'flex';
     }
 }
 
 function editCaregiver(id) {
+    // Find the caregiver from the allCaregivers array
     const caregiver = allCaregivers.find(c => c._id === id);
+    
     if (caregiver) {
         document.getElementById('caregiverModalTitle').innerText = 'Edit Caregiver';
         document.getElementById('caregiverId').value = caregiver._id;
@@ -320,10 +249,14 @@ function editCaregiver(id) {
         document.getElementById('caregiverService').value = caregiver.service || 'Companionship';
         document.getElementById('caregiverExperience').value = caregiver.experience || 0;
         document.getElementById('caregiverRate').value = caregiver.hourlyRate || 25;
+        document.getElementById('caregiverRating').value = caregiver.rating || 4.5;
+        document.getElementById('caregiverTotalReviews').value = caregiver.totalReviews || 0;
         document.getElementById('caregiverPhone').value = caregiver.phone || '';
         document.getElementById('caregiverEmail').value = caregiver.email || '';
         document.getElementById('caregiverDesc').value = caregiver.description || '';
         document.getElementById('caregiverModal').style.display = 'flex';
+    } else {
+        showToast('Caregiver not found', 'error');
     }
 }
 
@@ -343,7 +276,9 @@ document.getElementById('caregiverForm')?.addEventListener('submit', async (e) =
         hourlyRate: parseInt(document.getElementById('caregiverRate').value),
         phone: document.getElementById('caregiverPhone').value,
         email: document.getElementById('caregiverEmail').value,
-        description: document.getElementById('caregiverDesc').value
+        description: document.getElementById('caregiverDesc').value,
+        rating: parseFloat(document.getElementById('caregiverRating')?.value || 4.5),
+        totalReviews: parseInt(document.getElementById('caregiverTotalReviews')?.value || 0)
     };
     
     try {
@@ -363,7 +298,6 @@ document.getElementById('caregiverForm')?.addEventListener('submit', async (e) =
 });
 
 // ============ BOOKING MANAGEMENT ============
-
 async function loadBookings() {
     try {
         allBookings = await apiCall('/admin/bookings');
@@ -450,7 +384,6 @@ async function deleteBooking(id) {
 }
 
 // ============ USER MANAGEMENT ============
-
 async function loadUsers() {
     try {
         allUsers = await apiCall('/admin/users');
@@ -504,14 +437,12 @@ async function deleteUser(id) {
 }
 
 // ============ SEARCH EVENT LISTENERS ============
-
 document.getElementById('caregiverSearch')?.addEventListener('input', () => displayCaregivers());
 document.getElementById('bookingSearch')?.addEventListener('input', () => displayBookings());
 document.getElementById('userSearch')?.addEventListener('input', () => displayUsers());
 document.getElementById('bookingStatusFilter')?.addEventListener('change', () => displayBookings());
 
 // ============ INITIALIZATION ============
-
 document.addEventListener('DOMContentLoaded', async () => {
     const token = getToken();
     if (!token) {
@@ -520,14 +451,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     
     try {
-        // Verify admin status
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         if (user.role !== 'admin') {
             window.location.href = '/dashboard.html';
             return;
         }
-        
-        // Load dashboard
         await loadDashboard();
     } catch (error) {
         console.error('Initialization error:', error);
