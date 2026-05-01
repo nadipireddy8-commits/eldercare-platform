@@ -69,5 +69,85 @@
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/main.js"></script>
+    <!-- Booking Modal - Add this before </body> tag -->
+<div id="bookingModal" class="booking-modal">
+    <div class="booking-modal-content">
+        <div class="booking-modal-header">
+            <h3>📅 Book Caregiver</h3>
+            <button class="booking-modal-close" onclick="closeBookingModal()">&times;</button>
+        </div>
+        <div class="booking-modal-body">
+            <input type="hidden" id="selectedCaregiverId">
+            <input type="hidden" id="selectedCaregiverName">
+            
+            <div class="booking-form-group">
+                <label>👤 Caregiver</label>
+                <input type="text" id="modalCaregiverName" readonly class="booking-input-readonly">
+            </div>
+            
+            <div class="booking-form-group">
+                <label>📅 Select Date</label>
+                <input type="date" id="bookingDate" class="booking-input" min="">
+            </div>
+            
+            <div class="booking-form-group">
+                <label>⏰ Select Time Slot</label>
+                <select id="bookingTimeSlot" class="booking-select">
+                    <option value="">Select time slot</option>
+                    <option value="Morning (8AM - 12PM)">🌅 Morning (8AM - 12PM)</option>
+                    <option value="Afternoon (12PM - 4PM)">☀️ Afternoon (12PM - 4PM)</option>
+                    <option value="Evening (4PM - 8PM)">🌆 Evening (4PM - 8PM)</option>
+                    <option value="Night (8PM - 8AM)">🌙 Night (8PM - 8AM)</option>
+                </select>
+            </div>
+            
+            <div class="booking-form-group">
+                <label>⏱️ Duration (Hours)</label>
+                <select id="bookingDuration" class="booking-select">
+                    <option value="1">1 hour - $25</option>
+                    <option value="2" selected>2 hours - $50</option>
+                    <option value="3">3 hours - $75</option>
+                    <option value="4">4 hours - $100</option>
+                    <option value="6">6 hours - $150</option>
+                    <option value="8">8 hours - $200</option>
+                    <option value="12">12 hours - $300</option>
+                    <option value="24">24 hours - $500</option>
+                </select>
+            </div>
+            
+            <div class="booking-form-group">
+                <label>📝 Special Instructions (Optional)</label>
+                <textarea id="bookingNotes" class="booking-textarea" rows="3" placeholder="Any special requirements or instructions..."></textarea>
+            </div>
+            
+            <div class="booking-price-summary">
+                <p>💰 Total Amount: <strong id="totalAmount">$50</strong></p>
+                <p class="price-note">* Payment will be collected after service</p>
+            </div>
+        </div>
+        <div class="booking-modal-footer">
+            <button class="booking-btn-cancel" onclick="closeBookingModal()">Cancel</button>
+            <button class="booking-btn-confirm" onclick="confirmBooking()">Confirm Booking</button>
+        </div>
+    </div>
+</div>
+
+<!-- Booking Success Modal -->
+<div id="successModal" class="booking-modal">
+    <div class="booking-modal-content success-modal">
+        <div class="booking-modal-header">
+            <h3>✅ Booking Confirmed!</h3>
+            <button class="booking-modal-close" onclick="closeSuccessModal()">&times;</button>
+        </div>
+        <div class="booking-modal-body" style="text-align: center;">
+            <div class="success-icon">🎉</div>
+            <p>Your booking has been successfully scheduled!</p>
+            <p style="color: #64748b; font-size: 0.9rem;">You can view your bookings in "My Bookings" page.</p>
+        </div>
+        <div class="booking-modal-footer">
+            <button class="booking-btn-confirm" onclick="closeSuccessModalAndRedirect()">View My Bookings</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>

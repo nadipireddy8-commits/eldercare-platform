@@ -56,6 +56,7 @@ function displayCaregivers(caregivers, container = null) {
 }
 
 // Book Caregiver function
+// Book Caregiver - Opens modal instead of immediate booking
 async function bookCaregiver(caregiverId) {
     if (!authToken) {
         showToast('Please login to book a caregiver');
@@ -70,20 +71,97 @@ async function bookCaregiver(caregiverId) {
     }
     
     try {
-        showToast('Processing your booking request...');
-        
+        // Find the caregiver
         const caregiver = allCaregivers.find(c => c._id === caregiverId);
         if (!caregiver) {
             showToast('Caregiver not found');
             return;
         }
         
+        // Set minimum date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('bookingDate').min = today;
+        document.getElementById('bookingDate').value = today;
+        
+        // Set modal values
+        document.getElementById('selectedCaregiverId').value = caregiverId;
+        document.getElementById('selectedCaregiverName').value = caregiver.name;
+        document.getElementById('modalCaregiverName').value = caregiver.name;
+        
+        // Update price when duration changes
+        const durationSelect = document.getElementById('bookingDuration');
+        const updatePrice = () => {
+            const duration = parseInt(durationSelect.value);
+            const hourlyRate = caregiver.hourlyRate || 25;
+            const total = duration * hourlyRate;
+            document.getElementById('totalAmount').innerHTML = `$${total}`;
+            durationSelect.options[durationSelect.selectedIndex].text = 
+                `${duration} hour${duration > 1 ? 's' : ''} - $${total}`;
+        };
+        
+        durationSelect.onchange = updatePrice;
+        updatePrice();
+        
+        // Show modal
+        document.getElementById('bookingModal').style.display = 'flex';
+        
+    } catch (error) {
+        console.error('Booking error:', error);
+        showToast('Failed to load booking form');
+    }
+}
+
+// Close booking modal
+function closeBookingModal() {
+    document.getElementById('bookingModal').style.display = 'none';
+    document.getElementById('bookingNotes').value = '';
+}
+
+// Confirm booking with date, time, duration
+async function confirmBooking() {
+    const caregiverId = document.getElementById('selectedCaregiverId').value;
+    const caregiverName = document.getElementById('selectedCaregiverName').value;
+    const bookingDate = document.getElementById('bookingDate').value;
+    const timeSlot = document.getElementById('bookingTimeSlot').value;
+    const duration = parseInt(document.getElementById('bookingDuration').value);
+    const notes = document.getElementById('bookingNotes').value;
+    
+    // Validation
+    if (!bookingDate) {
+        showToast('Please select a date');
+        return;
+    }
+    
+    if (!timeSlot) {
+        showToast('Please select a time slot');
+        return;
+    }
+    
+    if (!duration || duration < 1) {
+        showToast('Please select duration');
+        return;
+    }
+    
+    // Calculate total amount
+    const caregiver = allCaregivers.find(c => c._id === caregiverId);
+    const hourlyRate = caregiver?.hourlyRate || 25;
+    const totalAmount = duration * hourlyRate;
+    
+    // Close modal
+    closeBookingModal();
+    
+    // Show loading
+    showToast('Processing your booking...');
+    
+    try {
+        // Create booking
         const bookingData = {
             caregiverId: caregiverId,
-            date: new Date().toISOString(),
-            timeSlot: 'Morning',
-            duration: 2,
-            notes: `Booking request for ${caregiver.name}`
+            date: new Date(bookingDate).toISOString(),
+            timeSlot: timeSlot,
+            duration: duration,
+            totalAmount: totalAmount,
+            notes: notes || `Booking request for ${caregiverName}`
         };
         
         console.log('Sending booking request:', bookingData);
@@ -95,11 +173,8 @@ async function bookCaregiver(caregiverId) {
         
         console.log('Booking result:', result);
         
-        showToast(`✅ Booking request sent to ${caregiver.name}!`);
-        
-        setTimeout(() => {
-            window.location.href = 'bookings.html';
-        }, 1500);
+        // Show success modal
+        document.getElementById('successModal').style.display = 'flex';
         
     } catch (error) {
         console.error('Booking error:', error);
@@ -107,6 +182,16 @@ async function bookCaregiver(caregiverId) {
     }
 }
 
+// Close success modal
+function closeSuccessModal() {
+    document.getElementById('successModal').style.display = 'none';
+}
+
+// Close success modal and redirect to bookings
+function closeSuccessModalAndRedirect() {
+    document.getElementById('successModal').style.display = 'none';
+    window.location.href = 'bookings.html';
+}
 // Cancel booking function
 // Cancel booking function - FIXED VERSION
 async function cancelBooking(bookingId) {
