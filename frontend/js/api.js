@@ -69,7 +69,7 @@ function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.textContent = message;
-    toast.style.cssText = `position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:${type === 'error' ? '#ef4444' : '#1e293b'};color:white;padding:0.75rem 1.5rem;border-radius:8px;z-index:9999;`;
+    toast.style.cssText = `position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:${type === 'error' ? '#ef4444' : '#1e293b'};color:white;padding:0.75rem 1.5rem;border-radius:8px;z-index:9999;font-weight:500;`;
     document.body.appendChild(toast);
     
     setTimeout(() => {
@@ -87,23 +87,23 @@ async function login(email, password) {
         });
         
         if (data.token) {
-    authToken = data.token;
-    currentUser = data.user;
-    localStorage.setItem('token', authToken);
-    localStorage.setItem('user', JSON.stringify(currentUser));
-    console.log('User role:', currentUser.role);
-    showToast('Login successful! Welcome back!');
-    
-    // Check role and redirect accordingly
-    if (currentUser.role === 'admin') {
-        window.location.href = '/admin/admin-dashboard.html';
-    } else if (currentUser.role === 'caregiver') {
-        window.location.href = '/caregiver-dashboard.html';
-    } else {
-        window.location.href = '/dashboard.html';
-    }
-    return true;
-}
+            authToken = data.token;
+            currentUser = data.user;
+            localStorage.setItem('token', authToken);
+            localStorage.setItem('user', JSON.stringify(currentUser));
+            console.log('Login successful! Role:', currentUser.role);
+            showToast('Login successful! Welcome back!');
+            
+            // Check role and redirect accordingly
+            if (currentUser.role === 'admin') {
+                window.location.href = '/admin/admin-dashboard.html';
+            } else if (currentUser.role === 'caregiver') {
+                window.location.href = '/caregiver-dashboard.html';
+            } else {
+                window.location.href = '/dashboard.html';
+            }
+            return true;
+        }
         return false;
     } catch (error) {
         console.error('Login error:', error);
@@ -115,7 +115,7 @@ async function login(email, password) {
 async function register(name, email, password, role = 'family') {
     try {
         console.log('Attempting registration for:', email);
-        const data = await apiCall('/auth/register', {
+        await apiCall('/auth/register', {
             method: 'POST',
             body: JSON.stringify({ name, email, password, role })
         });
@@ -151,6 +151,7 @@ function checkAuthStatus() {
         try {
             currentUser = JSON.parse(user);
             console.log('User authenticated:', currentUser.name);
+            console.log('User role:', currentUser.role);
         } catch (e) {
             console.error('Error parsing user:', e);
         }
@@ -180,6 +181,18 @@ function checkAuthStatus() {
         if (logoutNavBtn) logoutNavBtn.style.display = 'inline-block';
         if (bookingsNav) bookingsNav.style.display = 'inline-block';
         if (profileNav) profileNav.style.display = 'inline-block';
+        
+        // Add caregiver specific navigation if role is caregiver
+        if (currentUser.role === 'caregiver') {
+            const nav = document.querySelector('nav');
+            if (nav && !document.getElementById('caregiverNavLink')) {
+                const caregiverLink = document.createElement('a');
+                caregiverLink.id = 'caregiverNavLink';
+                caregiverLink.href = '/caregiver-dashboard.html';
+                caregiverLink.textContent = 'Caregiver Portal';
+                nav.appendChild(caregiverLink);
+            }
+        }
     } else {
         console.log('User not authenticated');
     }

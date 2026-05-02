@@ -1,8 +1,42 @@
+// frontend/js/auth.js
 // Authentication Functions
 
+// API URL - use the global config or default
+const API_BASE_URL = window.API_CONFIG?.BASE_URL || 'https://eldercare-api-4ovh.onrender.com/api';
+
+// Helper function to show errors
+function showErrorMessage(message) {
+    const errorDiv = document.getElementById('errorMsg');
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        setTimeout(() => {
+            errorDiv.style.display = 'none';
+        }, 3000);
+    } else {
+        alert(message);
+    }
+}
+
+function showSuccessMessage(message) {
+    const successDiv = document.getElementById('successMsg');
+    if (successDiv) {
+        successDiv.textContent = message;
+        successDiv.style.display = 'block';
+        setTimeout(() => {
+            successDiv.style.display = 'none';
+        }, 3000);
+    } else {
+        alert(message);
+    }
+}
+
+// Login function
 async function login(email, password) {
     try {
-        const response = await fetch(`${API_URL}/auth/login`, {
+        console.log('Attempting login for:', email);
+        
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
@@ -14,9 +48,10 @@ async function login(email, password) {
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
             
-            console.log('User role:', data.user.role);
+            console.log('Login successful! Role:', data.user.role);
+            showSuccessMessage('Login successful! Welcome back!');
             
-            // Check role and redirect accordingly
+            // Role-based redirect
             if (data.user.role === 'admin') {
                 window.location.href = '/admin/admin-dashboard.html';
             } else if (data.user.role === 'caregiver') {
@@ -24,71 +59,109 @@ async function login(email, password) {
             } else {
                 window.location.href = '/dashboard.html';
             }
+            return true;
         } else {
-            showError(data.message || 'Invalid credentials');
+            showErrorMessage(data.message || 'Invalid credentials. Please try again.');
+            return false;
         }
     } catch (error) {
         console.error('Login error:', error);
-        showError('Connection error. Make sure backend is running.');
-    }
-}
-async function register(name, email, password, role = 'family') {
-    try {
-        const data = await apiCall('/auth/register', {
-            method: 'POST',
-            body: JSON.stringify({ name, email, password, role })
-        });
-        
-        showToast('Registration successful! Please login.');
-        window.location.href = 'login.html';
-        return true;
-    } catch (error) {
-        showToast(error.message || 'Registration failed. Please try again.');
+        showErrorMessage('Connection error. Please check if backend is running.');
         return false;
     }
 }
 
+// Register function
+async function register(name, email, password, role = 'family') {
+    try {
+        console.log('Attempting registration for:', email);
+        
+        const response = await fetch(`${API_BASE_URL}/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type':application/json' },
+            body: JSON.stringify({ name, email, password, role })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            showSuccessMessage('Registration successful! Please login.');
+            setTimeout(() => {
+                window.location.href = '/login.html';
+            }, 2000);
+            return true;
+        } else {
+            showErrorMessage(data.message || 'Registration failed. Please try again.');
+            return false;
+        }
+    } catch (error) {
+        console.error('Registration error:', error);
+        showErrorMessage('Connection error. Please try again.');
+        return false;
+    }
+}
+
+// Logout function
 function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    authToken = null;
-    currentUser = null;
-    showToast('Logged out successfully');
-    window.location.href = 'index.html';
+    window.location.href = '/index.html';
 }
 
+// Check authentication status and update UI
 function checkAuthStatus() {
     const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
     
     if (token && user) {
-        authToken = token;
-        currentUser = JSON.parse(user);
+        // Update navigation based on role
+        const loginLinks = document.querySelectorAll('#loginLink, #loginNav');
+        const registerLinks = document.querySelectorAll('#registerLink, #registerNav');
+        const dashboardLinks = document.querySelectorAll('#dashboardLink, #dashboardNav');
+        const logoutBtns = document.querySelectorAll('#logoutBtn, #logoutNavBtn');
+        const bookingsLinks = document.querySelectorAll('#bookingsLink, #bookingsNav');
+        const profileLinks = document.querySelectorAll('#profileLink, #profileNav');
         
-        // Update UI based on auth status
-        const loginLink = document.getElementById('loginLink');
-        const registerLink = document.getElementById('registerLink');
-        const dashboardLink = document.getElementById('dashboardLink');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const loginNav = document.getElementById('loginNav');
-        const registerNav = document.getElementById('registerNav');
-        const dashboardNav = document.getElementById('dashboardNav');
-        const logoutNavBtn = document.getElementById('logoutNavBtn');
+        loginLinks.forEach(link => {
+            if (link) link.style.display = 'none';
+        });
+        registerLinks.forEach(link => {
+            if (link) link.style.display = 'none';
+        });
+        dashboardLinks.forEach(link => {
+            if (link) link.style.display = 'inline-block';
+        });
+        logoutBtns.forEach(btn => {
+            if (btn) btn.style.display = 'inline-block';
+        });
+        bookingsLinks.forEach(link => {
+            if (link) link.style.display = 'inline-block';
+        });
+        profileLinks.forEach(link => {
+            if (link) link.style.display = 'inline-block';
+        });
         
-        if (loginLink) loginLink.style.display = 'none';
-        if (registerLink) registerLink.style.display = 'none';
-        if (dashboardLink) dashboardLink.style.display = 'inline-block';
-        if (logoutBtn) logoutBtn.style.display = 'inline-block';
+        // Add caregiver specific navigation if role is caregiver
+        if (user.role === 'caregiver') {
+            const nav = document.querySelector('nav');
+            if (nav && !document.getElementById('caregiverNav')) {
+                const caregiverLink = document.createElement('a');
+                caregiverLink.id = 'caregiverNav';
+                caregiverLink.href = '/caregiver-dashboard.html';
+                caregiverLink.textContent = 'Caregiver Portal';
+                nav.appendChild(caregiverLink);
+            }
+        }
         
-        if (loginNav) loginNav.style.display = 'none';
-        if (registerNav) registerNav.style.display = 'none';
-        if (dashboardNav) dashboardNav.style.display = 'inline-block';
-        if (logoutNavBtn) logoutNavBtn.style.display = 'inline-block';
+        return true;
     }
+    return false;
 }
 
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('Auth.js loaded');
+    
     // Login form handler
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
@@ -112,12 +185,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const role = document.getElementById('role')?.value || 'family';
             
             if (password !== confirmPassword) {
-                showToast('Passwords do not match!');
+                showErrorMessage('Passwords do not match!');
                 return;
             }
             
             if (password.length < 6) {
-                showToast('Password must be at least 6 characters!');
+                showErrorMessage('Password must be at least 6 characters!');
                 return;
             }
             
