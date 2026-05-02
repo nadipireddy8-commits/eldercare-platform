@@ -169,5 +169,16 @@ const seedDatabase = async () => {
         process.exit(1);
     }
 };
+// Add caregiver user
+users.push({
+    _id: '5',
+    name: 'Sarah Johnson',
+    email: 'sarah@caregiver.com',
+    password: bcrypt.hashSync('caregiver123', salt),
+    role: 'caregiver',
+    phone: '+1 555-0301',
+    isActive: true,
+    createdAt: new Date()
+});
 
 seedDatabase();

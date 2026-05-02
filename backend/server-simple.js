@@ -488,6 +488,228 @@ app.get('/api/health', (req, res) => {
 
 // ============ START SERVER ============
 const PORT = process.env.PORT || 5001;
+// ============ CAREGIVER PORTAL ROUTES ============
+
+// Get caregiver information from user ID
+function getCaregiverIdByUserId(userId) {
+    const caregiver = caregivers.find(c => c.userId === userId);
+    return caregiver ? caregiver._id : null;
+}
+
+// Caregiver Dashboard Stats
+app.get('/api/caregiver/stats', auth, (req, res) => {
+    // Check if user is a caregiver
+    const user = users.find(u => u._id === req.user.id);
+    if (user.role !== 'caregiver') {
+        return res.status(403).json({ message: 'Access denied. Caregiver only.' });
+    }
+    
+    const caregiverId = getCaregiverIdByUserId(req.user.id);
+    if (!caregiverId) {
+        return res.json({ pending: 0, accepted: 0, completed: 0, earnings: 0 });
+    }
+    
+    const caregiverBookings = bookings.filter(b => b.caregiverId === caregiverId);
+    
+    const stats = {
+        pending: caregiverBookings.filter(b => b.status === 'Pending').length,
+        accepted: caregiverBookings.filter(b => b.status === 'Accepted').length,
+        inProgress: caregiverBookings.filter(b => b.status === 'In Progress').length,
+        completed: caregiverBookings.filter(b => b.status === 'Completed').length,
+        earnings: caregiverBookings.filter(b => b.status === 'Completed').reduce((sum, b) => sum + (b.totalAmount || 0), 0)
+    };
+    res.json(stats);
+});
+
+// Get all caregiver requests
+app.get('/api/caregiver/requests', auth, (req, res) => {
+    const user = users.find(u => u._id === req.user.id);
+    if (user.role !== 'caregiver') {
+        return res.status(403).json({ message: 'Access denied. Caregiver only.' });
+    }
+    
+    const caregiverId = getCaregiverIdByUserId(req.user.id);
+    if (!caregiverId) {
+        return res.json([]);
+    }
+    
+    const caregiverBookings = bookings.filter(b => b.caregiverId === caregiverId)
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    // Add patient info to each booking
+    const bookingsWithPatient = caregiverBookings.map(booking => {
+        const patient = users.find(u => u._id === booking.userId);
+        return {
+            ...booking,
+            patientName: patient?.name || 'Patient',
+            patientPhone: patient?.phone || '',
+            patientAddress: patient?.address || 'Address not provided'
+        };
+    });
+    
+    res.json(bookingsWithPatient);
+});
+
+// Accept a service request
+app.put('/api/caregiver/requests/:id/accept', auth, (req, res) => {
+    const user = users.find(u => u._id === req.user.id);
+    if (user.role !== 'caregiver') {
+        return res.status(403).json({ message: 'Access denied. Caregiver only.' });
+    }
+    
+    const booking = bookings.find(b => b._id === req.params.id);
+    if (!booking) {
+        return res.status(404).json({ message: 'Request not found' });
+    }
+    
+    booking.status = 'Accepted';
+    res.json({ message: 'Request accepted successfully', booking });
+});
+
+// Reject a service request
+app.put('/api/caregiver/requests/:id/reject', auth, (req, res) => {
+    const user = users.find(u => u._id === req.user.id);
+    if (user.role !== 'caregiver') {
+        return res.status(403).json({ message: 'Access denied. Caregiver only.' });
+    }
+    
+    const booking = bookings.find(b => b._id === req.params.id);
+    if (!booking) {
+        return res.status(404).json({ message: 'Request not found' });
+    }
+    
+    booking.status = 'Cancelled';
+    res.json({ message: 'Request rejected', booking });
+});
+
+// Update service status (Start/Complete)
+app.put('/api/caregiver/requests/:id/status', auth, (req, res) => {
+    const { status, notes } = req.body;
+    const user = users.find(u => u._id === req.user.id);
+    if (user.role !== 'caregiver') {
+        return res.status(403).json({ message: 'Access denied. Caregiver only.' });
+    }
+    
+    const booking = bookings.find(b => b._id === req.params.id);
+    if (!booking) {
+        return res.status(404).json({ message: 'Request not found' });
+    }
+    
+    booking.status = status;
+    if (notes) {
+        booking.careNotes = notes;
+    }
+    if (status === 'Completed') {
+        booking.completedAt = new Date();
+    }
+    
+    res.json({ message: `Service ${status.toLowerCase()}`, booking });
+});
+
+// Add care notes
+app.post('/api/caregiver/care-notes', auth, (req, res) => {
+    const { bookingId, notes } = req.body;
+    const user = users.find(u => u._id === req.user.id);
+    if (user.role !== 'caregiver') {
+        return res.status(403).json({ message: 'Access denied. Caregiver only.' });
+    }
+    
+    const booking = bookings.find(b => b._id === bookingId);
+    if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+    }
+    
+    if (!booking.careNotes) {
+        booking.careNotes = [];
+    }
+    booking.careNotes.push({
+        note: notes,
+        date: new Date(),
+        caregiverName: user.name
+    });
+    
+    res.json({ message: 'Care note added successfully' });
+});
+
+// Get caregiver earnings
+app.get('/api/caregiver/earnings', auth, (req, res) => {
+    const user = users.find(u => u._id === req.user.id);
+    if (user.role !== 'caregiver') {
+        return res.status(403).json({ message: 'Access denied. Caregiver only.' });
+    }
+    
+    const caregiverId = getCaregiverIdByUserId(req.user.id);
+    if (!caregiverId) {
+        return res.json({ total: 0, thisMonth: 0, completedCount: 0, history: [] });
+    }
+    
+    const completedBookings = bookings.filter(b => 
+        b.caregiverId === caregiverId && b.status === 'Completed'
+    );
+    
+    const now = new Date();
+    const thisMonth = completedBookings.filter(b => {
+        const bookingDate = new Date(b.date);
+        return bookingDate.getMonth() === now.getMonth() && 
+               bookingDate.getFullYear() === now.getFullYear();
+    });
+    
+    res.json({
+        total: completedBookings.reduce((sum, b) => sum + (b.totalAmount || 0), 0),
+        thisMonth: thisMonth.reduce((sum, b) => sum + (b.totalAmount || 0), 0),
+        completedCount: completedBookings.length,
+        history: completedBookings.map(b => ({
+            id: b._id,
+            serviceType: b.caregiverName,
+            date: b.date,
+            amount: b.totalAmount,
+            patientName: users.find(u => u._id === b.userId)?.name || 'Patient'
+        }))
+    });
+});
+
+// Get caregiver profile
+app.get('/api/caregiver/profile', auth, (req, res) => {
+    const user = users.find(u => u._id === req.user.id);
+    if (user.role !== 'caregiver') {
+        return res.status(403).json({ message: 'Access denied. Caregiver only.' });
+    }
+    
+    const caregiver = caregivers.find(c => c.userId === req.user.id);
+    res.json({
+        name: user.name,
+        email: user.email,
+        phone: user.phone || '',
+        service: caregiver?.service || '',
+        experience: caregiver?.experience || 0,
+        bio: caregiver?.description || '',
+        hourlyRate: caregiver?.hourlyRate || 25,
+        verified: caregiver?.verified || false
+    });
+});
+
+// Update caregiver profile
+app.put('/api/caregiver/profile', auth, (req, res) => {
+    const user = users.find(u => u._id === req.user.id);
+    if (user.role !== 'caregiver') {
+        return res.status(403).json({ message: 'Access denied. Caregiver only.' });
+    }
+    
+    // Update user info
+    user.name = req.body.name || user.name;
+    user.phone = req.body.phone || user.phone;
+    
+    // Update caregiver info
+    const caregiver = caregivers.find(c => c.userId === req.user.id);
+    if (caregiver) {
+        caregiver.service = req.body.service || caregiver.service;
+        caregiver.experience = req.body.experience || caregiver.experience;
+        caregiver.description = req.body.bio || caregiver.description;
+        caregiver.hourlyRate = req.body.hourlyRate || caregiver.hourlyRate;
+    }
+    
+    res.json({ message: 'Profile updated successfully' });
+});
 app.listen(PORT, () => {
     console.log('\n' + '='.repeat(55));
     console.log('🚀 ELDERCARE BACKEND RUNNING');

@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caregiver Dashboard - ElderCare</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .caregiver-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-card h3 {
+            font-size: 2rem;
+            color: #2c6e9e;
+        }
+        .earnings-card {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        .earnings-card h3 {
+            color: white;
+        }
+        .request-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #f59e0b;
+        }
+        .request-card.accepted {
+            border-left-color: #10b981;
+        }
+        .request-card.in-progress {
+            border-left-color: #3b82f6;
+        }
+        .request-card.completed {
+            border-left-color: #8b5cf6;
+        }
+        .request-card.cancelled {
+            border-left-color: #ef4444;
+        }
+        .btn-accept {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .btn-accept:hover { background: #059669; }
+        .btn-reject {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .btn-reject:hover { background: #dc2626; }
+        .btn-start {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .btn-start:hover { background: #2563eb; }
+        .btn-complete {
+            background: #8b5cf6;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .btn-complete:hover { background: #7c3aed; }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-accepted { background: #d1fae5; color: #065f46; }
+        .status-in-progress { background: #dbeafe; color: #1e40af; }
+        .status-completed { background: #e0e7ff; color: #3730a3; }
+        .status-cancelled { background: #fee2e2; color: #991b1b; }
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+        .nav-tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .nav-tab.active {
+            color: #2c6e9e;
+            border-bottom: 2px solid #2c6e9e;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">❤️ ElderCare</div>
+        <nav>
+            <a href="caregiver-dashboard.html" class="active">Dashboard</a>
+            <a href="caregiver-requests.html">All Requests</a>
+            <a href="caregiver-earnings.html">Earnings</a>
+            <a href="caregiver-profile.html">My Profile</a>
+            <button id="logoutBtn" class="logout-btn">Logout</button>
+        </nav>
+    </header>
+
+    <div class="dashboard-container">
+        <div class="welcome-banner">
+            <h1>Welcome back, <span id="caregiverName">Caregiver</span>! 👋</h1>
+            <p>Manage your service requests and track your earnings</p>
+        </div>
+
+        <div class="caregiver-stats">
+            <div class="stat-card">
+                <div class="stat-icon">⏳</div>
+                <h3 id="pendingRequests">0</h3>
+                <p>Pending Requests</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <h3 id="acceptedRequests">0</h3>
+                <p>Accepted</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔄</div>
+                <h3 id="inProgressRequests">0</h3>
+                <p>In Progress</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✓</div>
+                <h3 id="completedRequests">0</h3>
+                <p>Completed</p>
+            </div>
+            <div class="stat-card earnings-card">
+                <div class="stat-icon">💰</div>
+                <h3 id="totalEarnings">$0</h3>
+                <p>Total Earnings</p>
+            </div>
+        </div>
+
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-filter="all">All Requests</div>
+            <div class="nav-tab" data-filter="pending">Pending</div>
+            <div class="nav-tab" data-filter="accepted">Accepted</div>
+            <div class="nav-tab" data-filter="in-progress">In Progress</div>
+            <div class="nav-tab" data-filter="completed">Completed</div>
+        </div>
+
+        <div class="recent-bookings">
+            <h2>Service Requests</h2>
+            <div id="requestsList" class="bookings-list"></div>
+        </div>
+    </div>
+
+    <!-- Care Notes Modal -->
+    <div id="careNotesModal" class="modal">
+        <div class="modal-content">
+            <h2>Add Care Notes</h2>
+            <input type="hidden" id="careNotesBookingId">
+            <div class="form-group">
+                <label>Care Notes</label>
+                <textarea id="careNotesText" rows="5" placeholder="Describe the care provided, any observations, health updates, etc..."></textarea>
+            </div>
+            <div class="modal-buttons">
+                <button onclick="closeCareNotesModal()" class="btn-delete">Cancel</button>
+                <button onclick="saveCareNotes()" class="btn-edit">Save Notes</button>
+            </div>
+        </div>
+    </div>
+
+   
+
+    <script src="/js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/caregiver.js"></script>
+</body>
+</html>

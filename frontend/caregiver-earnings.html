@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Earnings - Caregiver</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">❤️ ElderCare</div>
+        <nav>
+            <a href="caregiver-dashboard.html">Dashboard</a>
+            <a href="caregiver-requests.html">All Requests</a>
+            <a href="caregiver-earnings.html" class="active">Earnings</a>
+            <a href="caregiver-profile.html">My Profile</a>
+            <button id="logoutBtn" class="logout-btn">Logout</button>
+        </nav>
+    </header>
+
+    <div class="dashboard-container">
+        <div class="welcome-banner">
+            <h1>My Earnings</h1>
+            <p>Track your service income</p>
+        </div>
+
+        <div class="caregiver-stats">
+            <div class="stat-card earnings-card" style="background: linear-gradient(135deg, #10b981, #059669);">
+                <h3 id="totalEarningsAmount">$0</h3>
+                <p>Total Earnings</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="thisMonthEarnings">$0</h3>
+                <p>This Month</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="completedServices">0</h3>
+                <p>Completed Services</p>
+            </div>
+        </div>
+
+        <div class="recent-bookings">
+            <h2>Payment History</h2>
+            <div id="earningsHistory" class="bookings-list"></div>
+        </div>
+    </div>
+
+    
+
+    <script src="/js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/caregiver.js"></script>
+</body>
+</html>
