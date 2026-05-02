@@ -78,7 +78,7 @@ async function register(name, email, password, role = 'family') {
         
         const response = await fetch(`${API_BASE_URL}/auth/register`, {
             method: 'POST',
-            headers: { 'Content-Type':application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name, email, password, role })
         });
         
@@ -111,9 +111,15 @@ function logout() {
 // Check authentication status and update UI
 function checkAuthStatus() {
     const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    let user = {};
     
-    if (token && user) {
+    try {
+        user = JSON.parse(localStorage.getItem('user') || '{}');
+    } catch (e) {
+        console.error('Error parsing user:', e);
+    }
+    
+    if (token && user && user.name) {
         // Update navigation based on role
         const loginLinks = document.querySelectorAll('#loginLink, #loginNav');
         const registerLinks = document.querySelectorAll('#registerLink, #registerNav');
