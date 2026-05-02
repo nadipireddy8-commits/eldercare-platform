@@ -9,7 +9,7 @@ dotenv.config();
 
 const app = express();
 
-// CORS configuration - Allow frontend to connect
+// CORS configuration
 const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:5500',
@@ -63,6 +63,7 @@ users.push({
     password: bcrypt.hashSync('password123', salt),
     role: 'family',
     phone: '+1 555-0101',
+    address: '123 Main St, New York',
     isActive: true,
     createdAt: new Date()
 });
@@ -74,11 +75,12 @@ users.push({
     password: bcrypt.hashSync('password123', salt),
     role: 'family',
     phone: '+1 555-0102',
+    address: '456 Oak Ave, Los Angeles',
     isActive: true,
     createdAt: new Date()
 });
 
-// ============ CREATE CAREGIVER USERS (ADDED) ============
+// ============ CREATE CAREGIVER USERS ============
 users.push({
     _id: '4',
     name: 'Mike Caregiver',
@@ -101,9 +103,10 @@ users.push({
     createdAt: new Date()
 });
 
-// ============ CREATE CAREGIVERS LIST ============
+// ============ CREATE CAREGIVER PROFILES ============
+// Caregiver profile for Mike
 caregivers.push({
-    _id: '1',
+    _id: '101',
     userId: '4',
     name: 'Mike Caregiver',
     service: 'Medical Care',
@@ -114,12 +117,14 @@ caregivers.push({
     email: 'mike@caregiver.com',
     hourlyRate: 30,
     rating: 4.7,
+    totalReviews: 15,
     available: true,
     createdAt: new Date()
 });
 
+// Caregiver profile for Sarah Caregiver
 caregivers.push({
-    _id: '2',
+    _id: '102',
     userId: '5',
     name: 'Sarah Johnson Caregiver',
     service: 'Companionship',
@@ -130,12 +135,14 @@ caregivers.push({
     email: 'sarah@caregiver.com',
     hourlyRate: 28,
     rating: 4.8,
+    totalReviews: 12,
     available: true,
     createdAt: new Date()
 });
 
+// Additional caregivers (no user login, just for booking)
 caregivers.push({
-    _id: '3',
+    _id: '103',
     name: 'Emily Wilson',
     service: 'Companionship',
     experience: 5,
@@ -145,12 +152,13 @@ caregivers.push({
     email: 'emily@caregiver.com',
     hourlyRate: 25,
     rating: 4.8,
+    totalReviews: 24,
     available: true,
     createdAt: new Date()
 });
 
 caregivers.push({
-    _id: '4',
+    _id: '104',
     name: 'David Chen',
     service: 'Medical Care',
     experience: 8,
@@ -160,12 +168,13 @@ caregivers.push({
     email: 'david@caregiver.com',
     hourlyRate: 35,
     rating: 4.9,
+    totalReviews: 31,
     available: true,
     createdAt: new Date()
 });
 
 caregivers.push({
-    _id: '5',
+    _id: '105',
     name: 'Robert Taylor',
     service: 'Dementia Care',
     experience: 10,
@@ -175,12 +184,13 @@ caregivers.push({
     email: 'robert@caregiver.com',
     hourlyRate: 40,
     rating: 5.0,
+    totalReviews: 52,
     available: true,
     createdAt: new Date()
 });
 
 caregivers.push({
-    _id: '6',
+    _id: '106',
     name: 'Maria Garcia',
     service: 'Personal Care',
     experience: 4,
@@ -190,16 +200,17 @@ caregivers.push({
     email: 'maria@caregiver.com',
     hourlyRate: 22,
     rating: 4.5,
+    totalReviews: 12,
     available: true,
     createdAt: new Date()
 });
 
 // ============ SAMPLE BOOKINGS ============
 bookings.push({
-    _id: '101',
-    bookingId: 'BK000001',
+    _id: '201',
+    bookingId: 'BK000201',
     userId: '2',
-    caregiverId: '3',
+    caregiverId: '103',
     caregiverName: 'Emily Wilson',
     date: new Date('2026-04-05'),
     timeSlot: 'Morning',
@@ -211,10 +222,10 @@ bookings.push({
 });
 
 bookings.push({
-    _id: '102',
-    bookingId: 'BK000002',
+    _id: '202',
+    bookingId: 'BK000202',
     userId: '2',
-    caregiverId: '5',
+    caregiverId: '105',
     caregiverName: 'Robert Taylor',
     date: new Date('2026-04-22'),
     timeSlot: 'Morning',
@@ -224,6 +235,75 @@ bookings.push({
     notes: 'Booking request for Robert Taylor',
     createdAt: new Date('2026-04-20')
 });
+
+// Sample bookings for Mike Caregiver (userId: 4, caregiverId: 101)
+bookings.push({
+    _id: '203',
+    bookingId: 'BK000203',
+    userId: '2',
+    caregiverId: '101',
+    caregiverName: 'Mike Caregiver',
+    date: new Date('2026-05-05'),
+    timeSlot: 'Morning',
+    duration: 3,
+    totalAmount: 90,
+    status: 'Pending',
+    notes: 'Need medical assistance for mother',
+    createdAt: new Date('2026-05-01')
+});
+
+bookings.push({
+    _id: '204',
+    bookingId: 'BK000204',
+    userId: '3',
+    caregiverId: '101',
+    caregiverName: 'Mike Caregiver',
+    date: new Date('2026-05-07'),
+    timeSlot: 'Afternoon',
+    duration: 2,
+    totalAmount: 60,
+    status: 'Accepted',
+    notes: 'Post-hospital follow-up care',
+    createdAt: new Date('2026-05-02')
+});
+
+// Sample bookings for Sarah Caregiver (userId: 5, caregiverId: 102)
+bookings.push({
+    _id: '205',
+    bookingId: 'BK000205',
+    userId: '2',
+    caregiverId: '102',
+    caregiverName: 'Sarah Johnson Caregiver',
+    date: new Date('2026-05-10'),
+    timeSlot: 'Morning',
+    duration: 4,
+    totalAmount: 112,
+    status: 'Pending',
+    notes: 'Companionship for elderly mother',
+    createdAt: new Date('2026-05-03')
+});
+
+bookings.push({
+    _id: '206',
+    bookingId: 'BK000206',
+    userId: '3',
+    caregiverId: '102',
+    caregiverName: 'Sarah Johnson Caregiver',
+    date: new Date('2026-05-12'),
+    timeSlot: 'Evening',
+    duration: 2,
+    totalAmount: 56,
+    status: 'Accepted',
+    notes: 'Evening companionship and dinner help',
+    createdAt: new Date('2026-05-03')
+});
+
+// ============ HELPER FUNCTION ============
+function getCaregiverIdByUserId(userId) {
+    const caregiver = caregivers.find(c => c.userId === userId);
+    console.log(`[DEBUG] Looking for caregiver with userId: ${userId}, Found: ${caregiver?._id || 'NOT FOUND'}`);
+    return caregiver ? caregiver._id : null;
+}
 
 // ============ AUTH MIDDLEWARE ============
 const auth = (req, res, next) => {
@@ -258,8 +338,10 @@ app.post('/api/auth/register', (req, res) => {
         }
         
         nextId++;
+        const newUserId = String(nextId);
+        
         const newUser = {
-            _id: String(nextId),
+            _id: newUserId,
             name,
             email,
             password: bcrypt.hashSync(password, salt),
@@ -268,6 +350,29 @@ app.post('/api/auth/register', (req, res) => {
             createdAt: new Date()
         };
         users.push(newUser);
+        
+        // AUTO-CREATE CAREGIVER PROFILE IF ROLE IS CAREGIVER
+        if (role === 'caregiver') {
+            const newCaregiverId = String(nextId + 1000);
+            const newCaregiver = {
+                _id: newCaregiverId,
+                userId: newUserId,
+                name: name,
+                service: 'Companionship',
+                experience: 1,
+                verified: false,
+                description: 'New caregiver profile. Please complete your profile.',
+                phone: '',
+                email: email,
+                hourlyRate: 25,
+                rating: 0,
+                totalReviews: 0,
+                available: true,
+                createdAt: new Date()
+            };
+            caregivers.push(newCaregiver);
+            console.log(`✅ Auto-created caregiver profile for: ${name} with ID: ${newCaregiverId}`);
+        }
         
         const token = jwt.sign(
             { id: newUser._id, email: newUser.email, role: newUser.role },
@@ -280,6 +385,7 @@ app.post('/api/auth/register', (req, res) => {
             user: { _id: newUser._id, name, email, role: newUser.role }
         });
     } catch (error) {
+        console.error('Registration error:', error);
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 });
@@ -309,6 +415,7 @@ app.post('/api/auth/login', (req, res) => {
             user: { _id: user._id, name: user.name, email: user.email, role: user.role }
         });
     } catch (error) {
+        console.error('Login error:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
@@ -364,6 +471,7 @@ app.post('/api/bookings', auth, (req, res) => {
         };
         
         bookings.push(newBooking);
+        console.log(`✅ New booking created: ${newBooking.bookingId} for ${caregiver.name}`);
         res.status(201).json(newBooking);
         
     } catch (error) {
@@ -526,41 +634,26 @@ app.delete('/api/admin/bookings/:id', auth, adminAuth, (req, res) => {
     }
 });
 
-// ============ HEALTH CHECK ============
-app.get('/api/health', (req, res) => {
-    res.json({
-        status: 'OK',
-        message: 'Server is running (in-memory mode)',
-        timestamp: new Date(),
-        stats: {
-            users: users.length,
-            caregivers: caregivers.length,
-            bookings: bookings.length
-        }
-    });
-});
-
 // ============ CAREGIVER PORTAL ROUTES ============
-
-// Get caregiver information from user ID
-function getCaregiverIdByUserId(userId) {
-    const caregiver = caregivers.find(c => c.userId === userId);
-    return caregiver ? caregiver._id : null;
-}
 
 // Caregiver Dashboard Stats
 app.get('/api/caregiver/stats', auth, (req, res) => {
     const user = users.find(u => u._id === req.user.id);
+    console.log('[DEBUG] Caregiver Stats - User ID:', req.user.id, 'Role:', user?.role);
+    
     if (user.role !== 'caregiver') {
         return res.status(403).json({ message: 'Access denied. Caregiver only.' });
     }
     
     const caregiverId = getCaregiverIdByUserId(req.user.id);
+    console.log('[DEBUG] Found Caregiver ID:', caregiverId);
+    
     if (!caregiverId) {
         return res.json({ pending: 0, accepted: 0, inProgress: 0, completed: 0, earnings: 0 });
     }
     
     const caregiverBookings = bookings.filter(b => b.caregiverId === caregiverId);
+    console.log(`[DEBUG] Found ${caregiverBookings.length} bookings for caregiver`);
     
     const stats = {
         pending: caregiverBookings.filter(b => b.status === 'Pending').length,
@@ -575,17 +668,24 @@ app.get('/api/caregiver/stats', auth, (req, res) => {
 // Get all caregiver requests
 app.get('/api/caregiver/requests', auth, (req, res) => {
     const user = users.find(u => u._id === req.user.id);
+    console.log('[DEBUG] Caregiver Requests - User ID:', req.user.id, 'Role:', user?.role);
+    
     if (user.role !== 'caregiver') {
         return res.status(403).json({ message: 'Access denied. Caregiver only.' });
     }
     
     const caregiverId = getCaregiverIdByUserId(req.user.id);
+    console.log('[DEBUG] Found Caregiver ID:', caregiverId);
+    
     if (!caregiverId) {
+        console.log('[DEBUG] No caregiver profile found');
         return res.json([]);
     }
     
     const caregiverBookings = bookings.filter(b => b.caregiverId === caregiverId)
         .sort((a, b) => new Date(b.date) - new Date(a.date));
+    
+    console.log(`[DEBUG] Found ${caregiverBookings.length} bookings`);
     
     const bookingsWithPatient = caregiverBookings.map(booking => {
         const patient = users.find(u => u._id === booking.userId);
@@ -613,6 +713,7 @@ app.put('/api/caregiver/requests/:id/accept', auth, (req, res) => {
     }
     
     booking.status = 'Accepted';
+    console.log(`✅ Booking ${req.params.id} accepted by caregiver ${user.name}`);
     res.json({ message: 'Request accepted successfully', booking });
 });
 
@@ -653,6 +754,7 @@ app.put('/api/caregiver/requests/:id/status', auth, (req, res) => {
         booking.completedAt = new Date();
     }
     
+    console.log(`✅ Booking ${req.params.id} status updated to ${status}`);
     res.json({ message: `Service ${status.toLowerCase()}`, booking });
 });
 
@@ -734,6 +836,20 @@ app.put('/api/caregiver/profile', auth, (req, res) => {
     res.json({ message: 'Profile updated successfully' });
 });
 
+// ============ HEALTH CHECK ============
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: 'OK',
+        message: 'Server is running',
+        timestamp: new Date(),
+        stats: {
+            users: users.length,
+            caregivers: caregivers.length,
+            bookings: bookings.length
+        }
+    });
+});
+
 // ============ START SERVER ============
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
@@ -753,5 +869,8 @@ app.listen(PORT, () => {
     console.log(`   Users: ${users.length}`);
     console.log(`   Caregivers: ${caregivers.length}`);
     console.log(`   Bookings: ${bookings.length}`);
+    console.log('\n📝 Sample Bookings for Caregivers:');
+    console.log('   - Mike Caregiver: 2 bookings (1 Pending, 1 Accepted)');
+    console.log('   - Sarah Caregiver: 2 bookings (1 Pending, 1 Accepted)');
     console.log('='.repeat(55) + '\n');
 });
