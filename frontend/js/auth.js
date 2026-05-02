@@ -1,8 +1,7 @@
 // frontend/js/auth.js
 // Authentication Functions
 
-// API URL - use the global config or default
-const API_BASE_URL = window.API_CONFIG?.BASE_URL || 'https://eldercare-api-4ovh.onrender.com/api';
+// Use the global API_BASE_URL from api.js (don't redeclare)
 
 // Helper function to show errors
 function showErrorMessage(message) {
@@ -36,6 +35,7 @@ async function login(email, password) {
     try {
         console.log('Attempting login for:', email);
         
+        // Use the global API_BASE_URL from api.js
         const response = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
