@@ -424,6 +424,59 @@ function closeSuccessModal() {
     location.reload();
 }
 
+// View care notes for completed service
+function viewCareNotes(bookingId) {
+    const booking = allRequests.find(b => b._id === bookingId);
+    if (!booking || !booking.careNotes) {
+        showToast('No care notes available for this booking', 'error');
+        return;
+    }
+    
+    // Create a modal to display care notes
+    let notesModal = document.getElementById('viewNotesModal');
+    if (!notesModal) {
+        notesModal = document.createElement('div');
+        notesModal.id = 'viewNotesModal';
+        notesModal.className = 'modal';
+        notesModal.innerHTML = `
+            <div class="modal-content" style="max-width: 500px;">
+                <h2>📋 Care Notes</h2>
+                <div id="careNotesContent" style="margin: 1rem 0; padding: 1rem; background: #f8fafc; border-radius: 8px;">
+                </div>
+                <div class="modal-buttons">
+                    <button onclick="closeViewNotesModal()" class="btn-edit">Close</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(notesModal);
+    }
+    
+    const contentDiv = document.getElementById('careNotesContent');
+    if (contentDiv) {
+        const formattedNotes = typeof booking.careNotes === 'string' 
+            ? booking.careNotes.replace(/\n/g, '<br>')
+            : JSON.stringify(booking.careNotes);
+        
+        contentDiv.innerHTML = `
+            <p><strong>👤 Caregiver:</strong> ${booking.caregiverName}</p>
+            <p><strong>📅 Date:</strong> ${new Date(booking.date).toLocaleDateString()}</p>
+            <p><strong>📝 Notes:</strong></p>
+            <p style="white-space: pre-wrap;">${formattedNotes}</p>
+            ${booking.completedAt ? `<p><strong>✅ Completed:</strong> ${new Date(booking.completedAt).toLocaleString()}</p>` : ''}
+        `;
+    }
+    
+    notesModal.style.display = 'flex';
+}
+
+// Close view notes modal
+function closeViewNotesModal() {
+    const modal = document.getElementById('viewNotesModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+// Make functions global for onclick handlers
 // Make functions global for onclick handlers
 window.acceptRequest = acceptRequest;
 window.rejectRequest = rejectRequest;
@@ -431,3 +484,5 @@ window.startService = startService;
 window.openCareNotesModal = openCareNotesModal;
 window.closeCareNotesModal = closeCareNotesModal;
 window.saveCareNotes = saveCareNotes;
+window.viewCareNotes = viewCareNotes;
+window.closeViewNotesModal = closeViewNotesModal;
