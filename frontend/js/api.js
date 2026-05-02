@@ -77,41 +77,7 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
-// Authentication Functions
-async function login(email, password) {
-    try {
-        console.log('Attempting login for:', email);
-        const data = await apiCall('/auth/login', {
-            method: 'POST',
-            body: JSON.stringify({ email, password })
-        });
-        
-        if (data.token) {
-            authToken = data.token;
-            currentUser = data.user;
-            localStorage.setItem('token', authToken);
-            localStorage.setItem('user', JSON.stringify(currentUser));
-            console.log('Login successful! Role:', currentUser.role);
-            showToast('Login successful! Welcome back!');
-            
-            // Check role and redirect accordingly
-            if (currentUser.role === 'admin') {
-                window.location.href = '/admin/admin-dashboard.html';
-            } else if (currentUser.role === 'caregiver') {
-                window.location.href = '/caregiver-dashboard.html';
-            } else {
-                window.location.href = '/dashboard.html';
-            }
-            return true;
-        }
-        return false;
-    } catch (error) {
-        console.error('Login error:', error);
-        showToast(error.message || 'Login failed. Please check your credentials.', 'error');
-        return false;
-    }
-}
-
+// Register function
 async function register(name, email, password, role = 'family') {
     try {
         console.log('Attempting registration for:', email);
@@ -132,6 +98,7 @@ async function register(name, email, password, role = 'family') {
     }
 }
 
+// Logout function
 function logout() {
     console.log('Logging out user:', currentUser?.name);
     localStorage.removeItem('token');
@@ -142,6 +109,7 @@ function logout() {
     window.location.href = '/index.html';
 }
 
+// Check auth status
 function checkAuthStatus() {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
@@ -201,17 +169,6 @@ function checkAuthStatus() {
 // Event Listeners
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded');
-    
-    // Login form handler
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            await login(email, password);
-        });
-    }
     
     // Register form handler
     const registerForm = document.getElementById('registerForm');

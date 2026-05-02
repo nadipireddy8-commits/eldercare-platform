@@ -31,7 +31,7 @@ function showSuccessMessage(message) {
     }
 }
 
-// Login function
+// Login function (ONLY HERE, NOT IN api.js)
 async function login(email, password) {
     try {
         console.log('Attempting login for:', email);
@@ -154,7 +154,7 @@ function checkAuthStatus() {
                 const caregiverLink = document.createElement('a');
                 caregiverLink.id = 'caregiverNav';
                 caregiverLink.href = '/caregiver-dashboard.html';
-                caregiverLink.textContent = 'Caregiver Portal';
+                caregiverLink.textContent = '👩‍⚕️ Caregiver Portal';
                 nav.appendChild(caregiverLink);
             }
         }
