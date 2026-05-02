@@ -63,7 +63,6 @@ users.push({
     password: bcrypt.hashSync('password123', salt),
     role: 'family',
     phone: '+1 555-0101',
-    address: '123 Main St, New York',
     isActive: true,
     createdAt: new Date()
 });
@@ -75,7 +74,6 @@ users.push({
     password: bcrypt.hashSync('password123', salt),
     role: 'family',
     phone: '+1 555-0102',
-    address: '456 Oak Ave, Los Angeles',
     isActive: true,
     createdAt: new Date()
 });
@@ -140,7 +138,7 @@ caregivers.push({
     createdAt: new Date()
 });
 
-// Additional caregivers (no user login, just for booking)
+// Additional caregivers (no user login, just for booking display)
 caregivers.push({
     _id: '103',
     name: 'Emily Wilson',
@@ -205,98 +203,9 @@ caregivers.push({
     createdAt: new Date()
 });
 
-// ============ SAMPLE BOOKINGS ============
-bookings.push({
-    _id: '201',
-    bookingId: 'BK000201',
-    userId: '2',
-    caregiverId: '103',
-    caregiverName: 'Emily Wilson',
-    date: new Date('2026-04-05'),
-    timeSlot: 'Morning',
-    duration: 3,
-    totalAmount: 75,
-    status: 'Accepted',
-    notes: 'First time booking',
-    createdAt: new Date('2026-04-01')
-});
-
-bookings.push({
-    _id: '202',
-    bookingId: 'BK000202',
-    userId: '2',
-    caregiverId: '105',
-    caregiverName: 'Robert Taylor',
-    date: new Date('2026-04-22'),
-    timeSlot: 'Morning',
-    duration: 2,
-    totalAmount: 80,
-    status: 'Cancelled',
-    notes: 'Booking request for Robert Taylor',
-    createdAt: new Date('2026-04-20')
-});
-
-// Sample bookings for Mike Caregiver (userId: 4, caregiverId: 101)
-bookings.push({
-    _id: '203',
-    bookingId: 'BK000203',
-    userId: '2',
-    caregiverId: '101',
-    caregiverName: 'Mike Caregiver',
-    date: new Date('2026-05-05'),
-    timeSlot: 'Morning',
-    duration: 3,
-    totalAmount: 90,
-    status: 'Pending',
-    notes: 'Need medical assistance for mother',
-    createdAt: new Date('2026-05-01')
-});
-
-bookings.push({
-    _id: '204',
-    bookingId: 'BK000204',
-    userId: '3',
-    caregiverId: '101',
-    caregiverName: 'Mike Caregiver',
-    date: new Date('2026-05-07'),
-    timeSlot: 'Afternoon',
-    duration: 2,
-    totalAmount: 60,
-    status: 'Accepted',
-    notes: 'Post-hospital follow-up care',
-    createdAt: new Date('2026-05-02')
-});
-
-// Sample bookings for Sarah Caregiver (userId: 5, caregiverId: 102)
-bookings.push({
-    _id: '205',
-    bookingId: 'BK000205',
-    userId: '2',
-    caregiverId: '102',
-    caregiverName: 'Sarah Johnson Caregiver',
-    date: new Date('2026-05-10'),
-    timeSlot: 'Morning',
-    duration: 4,
-    totalAmount: 112,
-    status: 'Pending',
-    notes: 'Companionship for elderly mother',
-    createdAt: new Date('2026-05-03')
-});
-
-bookings.push({
-    _id: '206',
-    bookingId: 'BK000206',
-    userId: '3',
-    caregiverId: '102',
-    caregiverName: 'Sarah Johnson Caregiver',
-    date: new Date('2026-05-12'),
-    timeSlot: 'Evening',
-    duration: 2,
-    totalAmount: 56,
-    status: 'Accepted',
-    notes: 'Evening companionship and dinner help',
-    createdAt: new Date('2026-05-03')
-});
+// ============ BOOKINGS (Start Empty - No Sample Bookings) ============
+// Real bookings will be created when users book caregivers
+let bookings = [];
 
 // ============ HELPER FUNCTION ============
 function getCaregiverIdByUserId(userId) {
@@ -868,9 +777,6 @@ app.listen(PORT, () => {
     console.log('\n📊 DATA STATUS:');
     console.log(`   Users: ${users.length}`);
     console.log(`   Caregivers: ${caregivers.length}`);
-    console.log(`   Bookings: ${bookings.length}`);
-    console.log('\n📝 Sample Bookings for Caregivers:');
-    console.log('   - Mike Caregiver: 2 bookings (1 Pending, 1 Accepted)');
-    console.log('   - Sarah Caregiver: 2 bookings (1 Pending, 1 Accepted)');
+    console.log(`   Bookings: ${bookings.length} (no sample bookings - users will create real ones)`);
     console.log('='.repeat(55) + '\n');
 });
