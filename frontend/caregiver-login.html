@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caregiver Login - ElderCare</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .caregiver-login-container {
+            max-width: 450px;
+            margin: 80px auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-top: 4px solid #10b981;
+        }
+        .caregiver-icon {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .caregiver-login-container h2 {
+            text-align: center;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+        .caregiver-login-container p {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 2rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #1e293b;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+        .btn-caregiver-login {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        .btn-caregiver-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        .back-link a {
+            color: #64748b;
+            text-decoration: none;
+        }
+        .error-msg {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            display: none;
+        }
+        .demo-info {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #f0fdf4;
+            border-radius: 0.5rem;
+            border-left: 3px solid #10b981;
+        }
+        .demo-info p {
+            margin: 0.25rem 0;
+            font-size: 0.8rem;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">❤️ ElderCare</div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="caregivers.html">Caregivers</a>
+            <a href="login.html">User Login</a>
+            <a href="register.html">Register</a>
+        </nav>
+    </header>
+
+    <div class="caregiver-login-container">
+        <div class="caregiver-icon">👩‍⚕️</div>
+        <h2>Caregiver Portal</h2>
+        <p>Login to manage your service requests and earnings</p>
+        
+        <div id="errorMsg" class="error-msg"></div>
+        
+        <form id="caregiverLoginForm">
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="email" required placeholder="sarah@caregiver.com">
+            </div>
+            
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" required placeholder="Enter your password">
+            </div>
+            
+            <button type="submit" class="btn-caregiver-login">🔐 Login to Caregiver Portal</button>
+        </form>
+        
+        <div class="back-link">
+            <a href="login.html">← Back to User Login</a>
+        </div>
+        
+        <div class="demo-info">
+            <strong>📋 Demo Caregiver Account:</strong>
+            <p>Email: sarah@caregiver.com</p>
+            <p>Password: caregiver123</p>
+            <p style="font-size: 0.7rem; color: #64748b; margin-top: 0.5rem;">* If account doesn't exist, <a href="register.html">register as caregiver</a></p>
+        </div>
+    </div>
+
+    <script src="/js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        const caregiverLoginForm = document.getElementById('caregiverLoginForm');
+        
+        caregiverLoginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('errorMsg');
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.token) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    // Check if user is actually a caregiver
+                    if (data.user.role === 'caregiver') {
+                        window.location.href = '/caregiver-dashboard.html';
+                    } else {
+                        errorDiv.style.display = 'block';
+                        errorDiv.textContent = 'This account is not registered as a caregiver. Please use caregiver credentials.';
+                        errorDiv.style.background = '#fee2e2';
+                        errorDiv.style.color = '#dc2626';
+                    }
+                } else {
+                    errorDiv.style.display = 'block';
+                    errorDiv.textContent = data.message || 'Invalid credentials. Please try again.';
+                }
+            } catch (error) {
+                errorDiv.style.display = 'block';
+                errorDiv.textContent = 'Connection error. Please try again.';
+                console.error('Login error:', error);
+            }
+        });
+    </script>
+</body>
+</html>

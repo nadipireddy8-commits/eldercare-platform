@@ -87,20 +87,23 @@ async function login(email, password) {
         });
         
         if (data.token) {
-            authToken = data.token;
-            currentUser = data.user;
-            localStorage.setItem('token', authToken);
-            localStorage.setItem('user', JSON.stringify(currentUser));
-            console.log('Login successful:', currentUser);
-            showToast('Login successful! Welcome back!');
-            
-            if (currentUser.role === 'admin') {
-                window.location.href = '/admin/admin-dashboard.html';
-            } else {
-                window.location.href = '/dashboard.html';
-            }
-            return true;
-        }
+    authToken = data.token;
+    currentUser = data.user;
+    localStorage.setItem('token', authToken);
+    localStorage.setItem('user', JSON.stringify(currentUser));
+    console.log('User role:', currentUser.role);
+    showToast('Login successful! Welcome back!');
+    
+    // Check role and redirect accordingly
+    if (currentUser.role === 'admin') {
+        window.location.href = '/admin/admin-dashboard.html';
+    } else if (currentUser.role === 'caregiver') {
+        window.location.href = '/caregiver-dashboard.html';
+    } else {
+        window.location.href = '/dashboard.html';
+    }
+    return true;
+}
         return false;
     } catch (error) {
         console.error('Login error:', error);

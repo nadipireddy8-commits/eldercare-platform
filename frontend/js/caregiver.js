@@ -1,13 +1,18 @@
 // frontend/js/caregiver.js
 // Caregiver Portal JavaScript
 
+// Use the global API functions from api.js
+// Make sure api.js is loaded before this file
+
 let allRequests = [];
 let currentFilter = 'all';
 
 // Load caregiver dashboard
 async function loadCaregiverDashboard() {
     try {
+        // Use the global apiCall function
         const stats = await apiCall('/caregiver/stats');
+        
         document.getElementById('pendingRequests').textContent = stats.pending || 0;
         document.getElementById('acceptedRequests').textContent = stats.accepted || 0;
         document.getElementById('inProgressRequests').textContent = stats.inProgress || 0;
@@ -19,7 +24,9 @@ async function loadCaregiverDashboard() {
         
     } catch (error) {
         console.error('Failed to load dashboard:', error);
-        showToast('Failed to load dashboard', 'error');
+        if (typeof showToast === 'function') {
+            showToast('Failed to load dashboard', 'error');
+        }
     }
 }
 
@@ -30,7 +37,9 @@ async function loadAllRequests() {
         displayRequests();
     } catch (error) {
         console.error('Failed to load requests:', error);
-        showToast('Failed to load requests', 'error');
+        if (typeof showToast === 'function') {
+            showToast('Failed to load requests', 'error');
+        }
     }
 }
 
@@ -45,45 +54,58 @@ function displayRequests() {
     }
     
     if (filtered.length === 0) {
-        container.innerHTML = '<p class="loading">No service requests found</p>';
+        container.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No service requests found</p></div>';
         return;
     }
     
-    container.innerHTML = filtered.map(req => `
-        <div class="request-card ${req.status.toLowerCase().replace(' ', '-')}">
-            <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 1rem;">
-                <div style="flex: 1;">
-                    <h3>${req.patientName || 'Patient'}</h3>
-                    <p><strong>📍 Service:</strong> ${req.caregiverName}</p>
-                    <p><strong>📅 Date:</strong> ${new Date(req.date).toLocaleDateString()}</p>
-                    <p><strong>⏰ Time:</strong> ${req.timeSlot || 'Flexible'}</p>
-                    <p><strong>⏱️ Duration:</strong> ${req.duration} hours</p>
-                    <p><strong>💰 Amount:</strong> $${req.totalAmount || 0}</p>
-                    <p><strong>📍 Address:</strong> ${req.patientAddress || 'Not provided'}</p>
-                    ${req.careNotes ? `<p><strong>📝 Care Notes:</strong> ${typeof req.careNotes === 'string' ? req.careNotes : 'Notes added'}</p>` : ''}
+    container.innerHTML = filtered.map(req => {
+        const statusClass = req.status.toLowerCase().replace(' ', '-');
+        return `
+            <div class="request-card ${statusClass}" data-id="${req._id}">
+                <div class="request-header">
+                    <div class="patient-info">
+                        <h3>${escapeHtml(req.patientName || 'Patient')}</h3>
+                        <p>📞 ${req.patientPhone || 'No phone'}</p>
+                    </div>
+                    <div>
+                        <span class="status-badge status-${statusClass}">${req.status}</span>
+                    </div>
                 </div>
-                <div style="text-align: right;">
-                    <span class="status-badge status-${req.status.toLowerCase().replace(' ', '-')}">${req.status}</span>
-                    <p style="margin-top: 8px;"><strong>Patient:</strong> ${req.patientPhone || 'No phone'}</p>
+                
+                <div class="request-details">
+                    <div class="detail-item"><strong>📍 Address:</strong> ${escapeHtml(req.patientAddress || 'Not provided')}</div>
+                    <div class="detail-item"><strong>📅 Date:</strong> ${new Date(req.date).toLocaleDateString()}</div>
+                    <div class="detail-item"><strong>⏰ Time:</strong> ${req.timeSlot || 'Flexible'}</div>
+                    <div class="detail-item"><strong>⏱️ Duration:</strong> ${req.duration} hours</div>
+                    <div class="detail-item"><strong>💰 Amount:</strong> $${req.totalAmount || 0}</div>
+                    <div class="detail-item"><strong>📝 Notes:</strong> ${req.notes || 'No notes'}</div>
+                </div>
+                
+                <div class="request-actions">
+                    ${req.status === 'Pending' ? `
+                        <button class="btn-accept" onclick="acceptRequest('${req._id}')">✓ Accept Request</button>
+                        <button class="btn-reject" onclick="rejectRequest('${req._id}')">✗ Reject</button>
+                    ` : ''}
+                    ${req.status === 'Accepted' ? `
+                        <button class="btn-start" onclick="startService('${req._id}')">▶ Start Service</button>
+                    ` : ''}
+                    ${req.status === 'In Progress' ? `
+                        <button class="btn-complete" onclick="openCareNotesModal('${req._id}')">✓ Complete Service</button>
+                    ` : ''}
+                    ${req.status === 'Completed' && req.careNotes ? `
+                        <button class="btn-view" onclick="viewCareNotes('${req._id}')">📋 View Care Notes</button>
+                    ` : ''}
                 </div>
             </div>
-            <div style="margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                ${req.status === 'Pending' ? `
-                    <button class="btn-accept" onclick="acceptRequest('${req._id}')">✓ Accept Request</button>
-                    <button class="btn-reject" onclick="rejectRequest('${req._id}')">✗ Reject</button>
-                ` : ''}
-                ${req.status === 'Accepted' ? `
-                    <button class="btn-start" onclick="startService('${req._id}')">▶ Start Service</button>
-                ` : ''}
-                ${req.status === 'In Progress' ? `
-                    <button class="btn-complete" onclick="openCareNotesModal('${req._id}')">✓ Complete Service</button>
-                ` : ''}
-                ${req.status === 'Completed' && req.careNotes ? `
-                    <button class="btn-view" onclick="viewCareNotes('${req._id}')">📋 View Care Notes</button>
-                ` : ''}
-            </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // Accept request
@@ -91,11 +113,12 @@ async function acceptRequest(requestId) {
     if (confirm('Accept this service request?')) {
         try {
             await apiCall(`/caregiver/requests/${requestId}/accept`, { method: 'PUT' });
-            showToast('Request accepted successfully');
-            loadAllRequests();
-            loadCaregiverDashboard();
+            if (typeof showToast === 'function') showToast('Request accepted successfully');
+            await loadAllRequests();
+            await loadCaregiverDashboard();
         } catch (error) {
-            showToast('Failed to accept request', 'error');
+            console.error('Accept error:', error);
+            if (typeof showToast === 'function') showToast('Failed to accept request', 'error');
         }
     }
 }
@@ -105,11 +128,12 @@ async function rejectRequest(requestId) {
     if (confirm('Reject this service request?')) {
         try {
             await apiCall(`/caregiver/requests/${requestId}/reject`, { method: 'PUT' });
-            showToast('Request rejected');
-            loadAllRequests();
-            loadCaregiverDashboard();
+            if (typeof showToast === 'function') showToast('Request rejected');
+            await loadAllRequests();
+            await loadCaregiverDashboard();
         } catch (error) {
-            showToast('Failed to reject request', 'error');
+            console.error('Reject error:', error);
+            if (typeof showToast === 'function') showToast('Failed to reject request', 'error');
         }
     }
 }
@@ -122,11 +146,12 @@ async function startService(requestId) {
                 method: 'PUT',
                 body: JSON.stringify({ status: 'In Progress' })
             });
-            showToast('Service started');
-            loadAllRequests();
-            loadCaregiverDashboard();
+            if (typeof showToast === 'function') showToast('Service started');
+            await loadAllRequests();
+            await loadCaregiverDashboard();
         } catch (error) {
-            showToast('Failed to start service', 'error');
+            console.error('Start service error:', error);
+            if (typeof showToast === 'function') showToast('Failed to start service', 'error');
         }
     }
 }
@@ -149,7 +174,7 @@ async function saveCareNotes() {
     const notes = document.getElementById('careNotesText').value;
     
     if (!notes) {
-        showToast('Please add care notes', 'error');
+        if (typeof showToast === 'function') showToast('Please add care notes', 'error');
         return;
     }
     
@@ -159,11 +184,12 @@ async function saveCareNotes() {
             body: JSON.stringify({ status: 'Completed', notes: notes })
         });
         closeCareNotesModal();
-        showToast('Service completed successfully');
-        loadAllRequests();
-        loadCaregiverDashboard();
+        if (typeof showToast === 'function') showToast('Service completed successfully');
+        await loadAllRequests();
+        await loadCaregiverDashboard();
     } catch (error) {
-        showToast('Failed to complete service', 'error');
+        console.error('Complete service error:', error);
+        if (typeof showToast === 'function') showToast('Failed to complete service', 'error');
     }
 }
 
@@ -197,7 +223,7 @@ async function loadEarnings() {
         }
     } catch (error) {
         console.error('Failed to load earnings:', error);
-        showToast('Failed to load earnings', 'error');
+        if (typeof showToast === 'function') showToast('Failed to load earnings', 'error');
     }
 }
 
@@ -220,7 +246,7 @@ async function loadCaregiverProfile() {
         }
     } catch (error) {
         console.error('Failed to load profile:', error);
-        showToast('Failed to load profile', 'error');
+        if (typeof showToast === 'function') showToast('Failed to load profile', 'error');
     }
 }
 
@@ -241,13 +267,14 @@ async function updateCaregiverProfile(e) {
             method: 'PUT',
             body: JSON.stringify(profileData)
         });
-        showToast('Profile updated successfully');
+        if (typeof showToast === 'function') showToast('Profile updated successfully');
         
         // Update displayed name in header
         const nameSpan = document.getElementById('caregiverName');
         if (nameSpan) nameSpan.textContent = profileData.name;
     } catch (error) {
-        showToast('Failed to update profile', 'error');
+        console.error('Update profile error:', error);
+        if (typeof showToast === 'function') showToast('Failed to update profile', 'error');
     }
 }
 
@@ -264,19 +291,23 @@ async function setCaregiverName() {
     }
 }
 
-// Tab navigation
-document.querySelectorAll('.nav-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        currentFilter = tab.dataset.filter;
-        displayRequests();
+// Filter tabs
+function setupTabs() {
+    const tabs = document.querySelectorAll('.nav-tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentFilter = tab.dataset.filter;
+            displayRequests();
+        });
     });
-});
+}
 
-// Page initialization
+// Initialize page based on URL
 document.addEventListener('DOMContentLoaded', async () => {
-    const token = getToken();
+    // Check if user is logged in (using global functions from api.js)
+    const token = localStorage.getItem('token');
     if (!token) {
         window.location.href = '/login.html';
         return;
@@ -284,28 +315,45 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     try {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
+        console.log('Current user role:', user.role);
+        
+        // Verify user is a caregiver
         if (user.role !== 'caregiver') {
+            console.log('Not a caregiver, redirecting to user dashboard');
             window.location.href = '/dashboard.html';
             return;
         }
         
         const path = window.location.pathname;
+        console.log('Loading page:', path);
         
         if (path.includes('caregiver-dashboard.html')) {
             await setCaregiverName();
             await loadCaregiverDashboard();
+            setupTabs();
         } else if (path.includes('caregiver-earnings.html')) {
             await setCaregiverName();
             await loadEarnings();
         } else if (path.includes('caregiver-profile.html')) {
             await loadCaregiverProfile();
-            document.getElementById('caregiverProfileForm')?.addEventListener('submit', updateCaregiverProfile);
+            const profileForm = document.getElementById('caregiverProfileForm');
+            if (profileForm) {
+                profileForm.addEventListener('submit', updateCaregiverProfile);
+            }
         } else if (path.includes('caregiver-requests.html')) {
             await setCaregiverName();
             await loadAllRequests();
+            setupTabs();
         }
     } catch (error) {
         console.error('Initialization error:', error);
-        window.location.href = '/login.html';
     }
 });
+
+// Make functions global for onclick handlers
+window.acceptRequest = acceptRequest;
+window.rejectRequest = rejectRequest;
+window.startService = startService;
+window.openCareNotesModal = openCareNotesModal;
+window.closeCareNotesModal = closeCareNotesModal;
+window.saveCareNotes = saveCareNotes;

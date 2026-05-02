@@ -2,27 +2,36 @@
 
 async function login(email, password) {
     try {
-        const data = await apiCall('/auth/login', {
+        const response = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
         });
         
-        if (data.token) {
-            authToken = data.token;
-            currentUser = data.user;
-            localStorage.setItem('token', authToken);
-            localStorage.setItem('user', JSON.stringify(currentUser));
-            showToast('Login successful! Welcome back!');
-            window.location.href = 'dashboard.html';
-            return true;
+        const data = await response.json();
+        
+        if (response.ok && data.token) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            
+            console.log('User role:', data.user.role);
+            
+            // Check role and redirect accordingly
+            if (data.user.role === 'admin') {
+                window.location.href = '/admin/admin-dashboard.html';
+            } else if (data.user.role === 'caregiver') {
+                window.location.href = '/caregiver-dashboard.html';
+            } else {
+                window.location.href = '/dashboard.html';
+            }
+        } else {
+            showError(data.message || 'Invalid credentials');
         }
-        return false;
     } catch (error) {
-        showToast(error.message || 'Login failed. Please check your credentials.');
-        return false;
+        console.error('Login error:', error);
+        showError('Connection error. Make sure backend is running.');
     }
 }
-
 async function register(name, email, password, role = 'family') {
     try {
         const data = await apiCall('/auth/register', {
