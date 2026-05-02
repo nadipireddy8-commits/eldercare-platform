@@ -349,6 +349,80 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Initialization error:', error);
     }
 });
+// Open care notes modal
+function openCareNotesModal(bookingId) {
+    console.log('Opening care notes modal for booking:', bookingId);
+    const modal = document.getElementById('careNotesModal');
+    const bookingIdInput = document.getElementById('careNotesBookingId');
+    const notesTextarea = document.getElementById('careNotesText');
+    
+    if (!modal) {
+        console.error('Care notes modal not found!');
+        alert('Modal not found. Please refresh the page.');
+        return;
+    }
+    
+    if (bookingIdInput) {
+        bookingIdInput.value = bookingId;
+    }
+    if (notesTextarea) {
+        notesTextarea.value = '';
+    }
+    
+    modal.style.display = 'flex';
+}
+
+// Close care notes modal
+function closeCareNotesModal() {
+    const modal = document.getElementById('careNotesModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Save care notes and complete service
+async function saveCareNotes() {
+    const bookingId = document.getElementById('careNotesBookingId')?.value;
+    const notes = document.getElementById('careNotesText')?.value;
+    
+    if (!bookingId) {
+        showToast('Error: Booking ID not found', 'error');
+        return;
+    }
+    
+    if (!notes) {
+        showToast('Please add care notes before completing', 'error');
+        return;
+    }
+    
+    try {
+        await apiCall(`/caregiver/requests/${bookingId}/status`, {
+            method: 'PUT',
+            body: JSON.stringify({ status: 'Completed', notes: notes })
+        });
+        
+        closeCareNotesModal();
+        showToast('✅ Service completed successfully!');
+        
+        // Reload the page to update stats
+        setTimeout(() => {
+            location.reload();
+        }, 1500);
+        
+    } catch (error) {
+        console.error('Complete service error:', error);
+        showToast('Failed to complete service', 'error');
+    }
+}
+
+// Close success modal
+function closeSuccessModal() {
+    const modal = document.getElementById('successModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    location.reload();
+}
 
 // Make functions global for onclick handlers
 window.acceptRequest = acceptRequest;
