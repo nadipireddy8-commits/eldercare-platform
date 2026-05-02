@@ -5,25 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile - Caregiver</title>
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        .profile-form {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .verified-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-            background: #d1fae5;
-            color: #065f46;
-        }
-        .pending-badge {
-            background: #fef3c7;
-            color: #92400e;
-        }
-    </style>
 </head>
 <body>
     <header>
@@ -45,10 +26,10 @@
 
         <div class="profile-card" style="max-width: 600px; margin: 0 auto;">
             <div style="text-align: center; margin-bottom: 1rem;">
-                <span id="verifiedBadge" class="verified-badge">Loading...</span>
+                <span id="verifiedBadge" class="pending-badge">Loading...</span>
             </div>
             
-            <form id="caregiverProfileForm" class="profile-form">
+            <form id="caregiverProfileForm">
                 <div class="form-group">
                     <label>Full Name</label>
                     <input type="text" id="caregiverNameInput" required>
@@ -56,7 +37,7 @@
                 
                 <div class="form-group">
                     <label>Email Address</label>
-                    <input type="email" id="caregiverEmail" readonly disabled>
+                    <input type="email" id="caregiverEmail" readonly style="background:#f1f5f9;">
                 </div>
                 
                 <div class="form-group">
@@ -76,14 +57,16 @@
                     </select>
                 </div>
                 
-                <div class="form-group">
-                    <label>Experience (years)</label>
-                    <input type="number" id="caregiverExperience" min="0">
-                </div>
-                
-                <div class="form-group">
-                    <label>Hourly Rate ($)</label>
-                    <input type="number" id="caregiverRate" min="15">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Experience (years)</label>
+                        <input type="number" id="caregiverExperience" min="0">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Hourly Rate ($)</label>
+                        <input type="number" id="caregiverRate" min="15">
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -101,4 +84,6 @@
     <script src="/js/config.js"></script>
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
-    <script src="js/caregiver
+    <script src="js/caregiver.js"></script>
+</body>
+</html>
